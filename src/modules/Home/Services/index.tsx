@@ -10,5 +10,17 @@ async function getCoordinates(address: string): Promise<any | null> {
     }
 }
 
-const HomeServices = { getCoordinates }
+async function placesAutocompletion(query: string, options?: { signal: AbortSignal }): Promise<any | null> {
+    try {
+        const response = await http.get(`https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=6&q=${encodeURIComponent(
+          query
+        )}`,options)
+        if(response) return response
+        else return null
+    } catch (error) {
+        throw new Error('Nominating API Error')
+    }
+}
+
+const HomeServices = { getCoordinates, placesAutocompletion }
 export default HomeServices

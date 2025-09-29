@@ -12,7 +12,7 @@ interface RouteControllerProps {
 
 const RouteController: React.FC<RouteControllerProps> = ({ onRouteFound }) => {
     const { mapInstance, origin, destination, setRouteInfo } = useMap();
-    const services = useService;
+    const services = useService();
     const routingControlRef = useRef<L.Routing.Control | null>(null);
     const pickupMarkerRef = useRef<L.Marker | null>(null);
     const dropMarkerRef = useRef<L.Marker | null>(null);

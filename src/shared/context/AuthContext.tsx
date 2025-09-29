@@ -51,7 +51,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         const request = role === 'driver' ? AuthService.driver.login : AuthService.admin.login
         const response = await request(credential)
         if(response) {
-            const userObject = AuthFactory.createAdminUserAccount(response.data.user)
+            const userObject = AuthFactory.createAdminUserAccount(role === 'driver' ? response.data.driver : response.data.user) 
             localStorage.setItem('user',JSON.stringify(userObject))
             const expiry = new Date(Date.now() + 30 * 60 * 1000);
             Cookies.set('authToken',response.data.token,{expires: expiry})
