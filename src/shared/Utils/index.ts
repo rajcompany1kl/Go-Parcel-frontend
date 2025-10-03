@@ -1,5 +1,7 @@
 // utils/memoize.ts
 
+import type { RouteInfo } from "../../modules/Home/types";
+
 export function memoize<T extends (...args: any[]) => any>(fn: T): T {
   const cache = new Map<string, ReturnType<T>>();
 
@@ -42,4 +44,35 @@ export function memoizeAsync<T extends (...args: any[]) => Promise<any>>(asyncFn
     cache.set(key, result);
     return result;
   }) as T;
+}
+
+
+export function formatRouteData(
+  distanceMmeters: number,
+  durationSeconds: number
+): { distance: string; duration: string } {
+  const distanceKm = distanceMmeters / 1000;
+  const formattedDistance = `${distanceKm.toFixed(2)} km`;
+
+  const totalMinutes = Math.round(durationSeconds / 60);
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  let formattedDuration = '';
+
+  if (hours > 0) {
+    formattedDuration += `${hours} hour${hours > 1 ? 's' : ''}`;
+    if (minutes > 0) {
+      formattedDuration += ` ${minutes} min${minutes > 1 ? 's' : ''}`;
+    }
+  } else {
+    formattedDuration = `${Math.max(1, minutes)} min${
+      minutes > 1 ? 's' : ''
+    }`;
+  }
+
+  return {
+    distance: formattedDistance,
+    duration: formattedDuration,
+  };
 }
