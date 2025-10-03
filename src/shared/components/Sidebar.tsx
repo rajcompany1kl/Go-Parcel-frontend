@@ -43,6 +43,7 @@ const Sidebar: React.FC = () => {
   };
 
   const handleFindRoute = () => {
+    if(routeData) setRouteData(null)
     if (originInput.trim()) {
       setOrigin(originInput.trim());
     }
