@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Person } from './ui/Icons'
 import useAuth from '../hooks/useAuth'
+import { useNavigate } from 'react-router'
 
 const Header = () => {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
   useEffect(()=>{
     if(user) {
       console.log(user)
@@ -16,6 +18,9 @@ const Header = () => {
             <div className="w-fit h-12 px-2 text-white text-lg tracking-wide flex justify-center items-center">{user?.firstName} {user?.lastName}</div>
             <div className="w-12 h-12 rounded-lg hover:bg-neutral-800 hover:cursor-pointer flex justify-center items-center">
                 <Person className='w-8 h-8 fill-white' />
+            </div>
+            <div onClick={() => logout((path: string) => navigate(path))} className="w-12 h-12 rounded-lg hover:bg-neutral-800 hover:cursor-pointer flex justify-center items-center text-white">
+                Logout
             </div>
         </div>
     </div>

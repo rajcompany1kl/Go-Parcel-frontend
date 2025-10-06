@@ -1,3 +1,5 @@
+import type { Dispatch, SetStateAction } from "react"
+
 export interface AdminUserAccount {
     id: string,
     firstName: string,
@@ -73,12 +75,16 @@ export type IconType = {
     className:string
 }
 
+export type RoleType = 'admin' | 'user' | 'driver'
+
 export interface AuthContextType {
     user: AdminUserAccount | DriverUserAccount | null;
     login: (role: string, credential: {email: string, password: string}, navigate: any) => Promise<boolean>;
     register: (role: string, userObject: AdminUserAccount | DriverUserAccount, setFormState: (formState: boolean) => void) => Promise<boolean>,
     logout: (navigate: any) => void;
     getToken: () => string;
+    role: RoleType;
+    setRole: Dispatch<SetStateAction<RoleType>>
 }
 
 export interface LoginCredential { email: string, password: string }

@@ -1,5 +1,5 @@
 import { createContext, useEffect, useState, type ReactNode } from "react";
-import { DriverRideStatus, type AdminUserAccount, type AuthContextType, type DriverUserAccount } from "../types";
+import { DriverRideStatus, type AdminUserAccount, type AuthContextType, type DriverUserAccount, type RoleType } from "../types";
 import Cookies from "js-cookie";
 import * as AuthFactory from '../../modules/Auth/factory'
 import AuthService from "../../modules/Auth/Services";
@@ -30,11 +30,14 @@ export const AuthContext = createContext<AuthContextType>({
     login: () => Promise.resolve(false),
     register: () => Promise.resolve(false),
     user: null,
-    getToken: () => ""
+    getToken: () => "",
+    role: 'admin',
+    setRole: () => {},
 })
 
 const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<DriverUserAccount | AdminUserAccount | any>();
+    const [ role, setRole ] = useState<RoleType>('admin')
 
     const logout = (navigate: any) => {
         Cookies.remove('authToken')
@@ -86,15 +89,15 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const getToken = () => Cookies.get('authToken') || ""
     
     useEffect(() => {
-        if (Cookies.get('authToken')) {
+        if (Cookies.get('authToken') && role != 'user') {
             getUser()
-        } else if (!Cookies.get('authToken') && window.location.pathname !== '/auth') {
+        } else if (!Cookies.get('authToken') && window.location.pathname !== '/auth' && role !== 'user') {
             window.location.href = '/auth'
         }
     }, []);
 
     return (
-        <AuthContext.Provider value={{logout, user, login, register, getToken}}>
+        <AuthContext.Provider value={{logout, user, login, register, getToken, role, setRole}}>
             {children}
         </AuthContext.Provider>
     )

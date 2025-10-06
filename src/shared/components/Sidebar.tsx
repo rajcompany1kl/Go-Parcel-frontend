@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useSuggestions } from "../hooks/useSuggestions";
 import { useMap } from "../hooks/useMap";
 import { formatRouteData } from "../Utils";
+import useAuth from "../hooks/useAuth";
+import DeliveryTrackingDetails from "../../modules/Home/Components/DeliveryTrackingDetails";
 
 const LocationPinIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 text-gray-400">
@@ -17,7 +19,6 @@ const SpinnerIcon = () => (
   </svg>
 );
 
-
 const Sidebar: React.FC = () => {
   type FieldType = "origin" | "destination";
 
@@ -27,6 +28,7 @@ const Sidebar: React.FC = () => {
   const [routeData, setRouteData] = useState<{ distance: string, duration: string } | null>(null)
 
   const { setOrigin, setDestination, origin, destination, routeInfo } = useMap()
+  const { role } = useAuth()
 
   const activeSearchTerm = activeField === "origin" ? originInput : destinationInput;
   const { suggestions, isLoading } = useSuggestions(activeSearchTerm);
@@ -59,12 +61,13 @@ const Sidebar: React.FC = () => {
     }
   },[routeInfo])
 
+  if(role === 'user') return <DeliveryTrackingDetails />
+
   return (
     <div className="w-96 bg-white shadow-2xl rounded-2xl p-6 font-sans flex flex-col h-full">
       <h1 className="text-2xl font-bold text-gray-800 mb-6">Route Planner</h1>
 
       <div className="space-y-5 flex-grow">
-        {/* Origin Input */}
         <div className="relative">
           <label className="font-semibold text-gray-600 text-sm mb-1 block">Pickup Location</label>
           <div className="relative">
@@ -81,7 +84,6 @@ const Sidebar: React.FC = () => {
           </div>
         </div>
 
-        {/* Destination Input */}
         <div className="relative">
           <label className="font-semibold text-gray-600 text-sm mb-1 block">Drop-off Location</label>
           <div className="relative">
@@ -98,7 +100,6 @@ const Sidebar: React.FC = () => {
           </div>
         </div>
         
-        {/* Suggestions & Loading State */}
         <div className="relative">
           {isLoading && (
             <div className="flex items-center justify-center p-4 text-gray-500">
