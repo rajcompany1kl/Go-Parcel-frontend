@@ -1,8 +1,8 @@
-import type { Rides } from "../types";
+import type { Ride } from "../types";
 import { CalendarIcon, CheckCircleIcon, ClockIcon, MapPinIcon, NavigationIcon, PauseIcon, PlayIcon } from "./ui/Icons";
 
 interface RideCardProps {
-    ride: Rides;
+    ride: Ride;
 }
 
 const RideCard: React.FC<RideCardProps> = ({ ride }) => {
@@ -60,9 +60,9 @@ const RideCard: React.FC<RideCardProps> = ({ ride }) => {
         return `${remainingMinutes}m`;
     };
 
-    const getFirstLeg = () => ride.direction?.routes[0]?.legs[0];
+    // const getFirstLeg = () => ride.direction?.routes[0]?.legs[0];
     const status = getRideStatus();
-    const leg = getFirstLeg();
+    // const leg = getFirstLeg();
     const duration = getDuration();
     const StatusIcon = status.icon;
 
@@ -103,7 +103,7 @@ const RideCard: React.FC<RideCardProps> = ({ ride }) => {
                         <div className="flex-1 min-w-0">
                             <div className="text-xs text-gray-500 mb-1">From</div>
                             <div className="text-sm font-medium text-gray-900 truncate">
-                                {leg?.start_address || 'Pickup location'}
+                                {'Pickup location'}
                             </div>
                         </div>
                     </div>
@@ -116,7 +116,7 @@ const RideCard: React.FC<RideCardProps> = ({ ride }) => {
                         <div className="flex-1 min-w-0">
                             <div className="text-xs text-gray-500 mb-1">To</div>
                             <div className="text-sm font-medium text-gray-900 truncate">
-                                {leg?.end_address || 'Drop-off location'}
+                                {'Drop-off location'}
                             </div>
                         </div>
                     </div>
@@ -142,7 +142,7 @@ const RideCard: React.FC<RideCardProps> = ({ ride }) => {
                             <div>
                                 <div className="text-gray-500">Distance</div>
                                 <div className="font-medium text-gray-900">
-                                    {leg?.distance?.text || ride.distance}
+                                    {ride.distance}
                                 </div>
                             </div>
                         </div>

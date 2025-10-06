@@ -23,6 +23,7 @@ export type MapContextType = {
 export interface ExtendedMapContextType extends MapContextType {
   mapInstance: L.Map | null;
   setMapInstance: React.Dispatch<React.SetStateAction<L.Map | null>>;
+  geocodeAddress: (address: string) => Promise<[number, number] | null>;
 }
 
 export interface MapProviderProps {
