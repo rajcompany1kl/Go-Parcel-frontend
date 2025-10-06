@@ -32,5 +32,14 @@ async function createDelivery(payload: Ride) {
     }
 }
 
-const HomeServices = { getCoordinates, placesAutocompletion, createDelivery }
+async function getDeliveryDetails(trackingId: string) {
+    try {
+        const {data} = await http.get(`/DriverUser/getride/${trackingId}`)
+        return data
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+const HomeServices = { getCoordinates, placesAutocompletion, createDelivery, getDeliveryDetails }
 export default HomeServices

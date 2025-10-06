@@ -1,7 +1,31 @@
+import { useEffect, useState } from 'react';
 import useAuth from '../../../shared/hooks/useAuth'
+import useService from '../../../shared/hooks/useServices';
+import type { Ride } from '../../../shared/types';
+import HomeFactory from '../factory';
 
 const DeliveryTrackingDetails = () => {
   const { trackingId } = useAuth()
+  const services = useService()
+
+  const [ delivery, setDelivery ] = useState<Ride | null>(null)
+  const [ formattedDistance, setFormattedDistance ] = useState<string>("")
+
+  const fetchDetails = async() => {
+    const response = await services.home.getDeliveryDetails(trackingId)
+    console.log(response.rides)
+    if(response.rides) {
+      console.log(response.rides)
+      const deliveryInformation: Ride = HomeFactory.createRideFromMongoDBResponse(response.rides)
+      setDelivery(deliveryInformation)
+    }
+  }
+
+  useEffect(() => {
+    fetchDetails()
+  },[])
+
+
   const ride = {
         adminId: 'adm_1a2b3c4d5e6f7g8h',
         driverId: 'drv_9i0j1k2l3m4n5o6p',
@@ -42,7 +66,7 @@ const DeliveryTrackingDetails = () => {
                 <div className="text-2xl font-bold text-cyan-400">Ride Details</div>
                 <p className="text-sm text-gray-400">Live tracking information</p>
             </div>
-            
+
             {/* Divider */}
             <hr className="border-gray-600 my-2"/>
 
@@ -59,7 +83,7 @@ const DeliveryTrackingDetails = () => {
                     </div>
                     <div>
                         <p className="font-semibold text-gray-300">Origin</p>
-                        <p className="text-cyan-400">{ride.leg.start_address}</p>
+                        <p className="text-cyan-400">{delivery?.leg.start_address}</p>
                     </div>
                 </div>
                 {/* End Address */}
@@ -72,7 +96,7 @@ const DeliveryTrackingDetails = () => {
                     </div>
                     <div>
                         <p className="font-semibold text-gray-300">Destination</p>
-                        <p className="text-cyan-400">{ride.leg.end_address}</p>
+                        <p className="text-cyan-400">{delivery?.leg.end_address}</p>
                     </div>
                 </div>
             </div>
@@ -85,11 +109,11 @@ const DeliveryTrackingDetails = () => {
                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Metrics</div>
                  <div className="bg-gray-700 p-3 rounded-lg">
                     <p className="text-sm text-gray-400">Total Distance</p>
-                    <p className="text-xl font-bold">{ride.distance}</p>
+                    <p className="text-xl font-bold">{delivery?.distance}</p>
                 </div>
                 <div className="bg-gray-700 p-3 rounded-lg">
                     <p className="text-sm text-gray-400">Driver's Last Location</p>
-                    <p className="text-lg font-mono">lat: {ride.lastDriverLocation.lat}, lng: {ride.lastDriverLocation.lng}</p>
+                    <p className="text-lg font-mono">lat: {delivery?.lastDriverLocation.lat}, lng: {delivery?.lastDriverLocation.lng}</p>
                 </div>
             </div>
 
@@ -97,10 +121,10 @@ const DeliveryTrackingDetails = () => {
             <div className="mt-auto pt-6 border-t border-gray-700">
                 <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Reference IDs</div>
                 <p className="text-sm text-gray-400 font-mono truncate">
-                    <strong>Admin:</strong> {ride.adminId}
+                    <strong>Admin:</strong> {delivery?.adminId}
                 </p>
                 <p className="text-sm text-gray-400 font-mono truncate">
-                    <strong>Driver:</strong> {ride.driverId}
+                    <strong>Driver:</strong> {delivery?.driverId}
                 </p>
             </div>
         </div>
