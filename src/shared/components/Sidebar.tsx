@@ -51,11 +51,36 @@ const Sidebar: React.FC = () => {
     setActiveField(null);
   };
   
-  const handleSetMarkers = () => {
-    console.log("setMarkers function from sidebar called")
-    if (originInput.trim()) setOrigin(originInput.trim());
-    if (destinationInput.trim()) setDestination(destinationInput.trim());
-  };
+const handleSetMarkers = async () => {
+  console.log("setMarkers function from sidebar called");
+
+  const code = Math.random().toString(36).substr(2, 8).toUpperCase(); 
+
+  if (originInput.trim()) setOrigin(originInput.trim());
+  if (destinationInput.trim()) setDestination(destinationInput.trim());
+
+  try {
+    const response = await fetch("http://localhost:5000/api/send-email", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        to: "kodeyan9@gmail.com",
+        subject: "Your Delivery Code",
+        text: `Your delivery code is: ${code}`,
+      }),
+    });
+
+    if (!response.ok) throw new Error("Failed to send email");
+
+    alert("Delivery code sent successfully!");
+  } catch (error) {
+    console.error("Email sending error:", error);
+    alert("Failed to send delivery code.");
+  }
+};
+
 
   return (
     <div className="w-80 bg-white shadow-lg p-4 rounded-2xl h-full overflow-y-auto">
