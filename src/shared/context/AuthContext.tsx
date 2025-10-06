@@ -33,11 +33,14 @@ export const AuthContext = createContext<AuthContextType>({
     getToken: () => "",
     role: 'admin',
     setRole: () => {},
+    trackingId: "",
+    setTrackingId: () => {}
 })
 
 const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<DriverUserAccount | AdminUserAccount | any>();
     const [ role, setRole ] = useState<RoleType>('admin')
+    const [trackingId, setTrackingId] = useState<string>("")
 
     const logout = (navigate: any) => {
         Cookies.remove('authToken')
@@ -97,7 +100,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     }, []);
 
     return (
-        <AuthContext.Provider value={{logout, user, login, register, getToken, role, setRole}}>
+        <AuthContext.Provider value={{logout, user, login, register, getToken, role, setRole, trackingId, setTrackingId}}>
             {children}
         </AuthContext.Provider>
     )
