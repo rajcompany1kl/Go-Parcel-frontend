@@ -52,3 +52,17 @@ export const CalendarIcon: React.FC<Partial<IconType>> = (props) => (
         <path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.1 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/>
     </svg>
 );
+
+export const LocationPinIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 text-gray-400">
+    <path fillRule="evenodd" d="M9.69 18.933l.003.001C9.89 19.02 10 19 10 19s.11.02.308-.066l.002-.001.006-.003.018-.008a5.741 5.741 0 00.281-.14c.186-.1.42-.25.698-.453l.028-.022c.283-.226.568-.46.837-.708l.01-.009.019-.016a1 1 0 00.004-.99c-.004-.005-.008-.009-.013-.014a10.042 10.042 0 00-1.284-1.342A8.042 8.042 0 0110 2a8.042 8.042 0 014.228 11.087 10.042 10.042 0 00-1.283 1.342 1 1 0 00-.013.014.996.996 0 00.004.99l.019.016.01.009c.27.248.554.482.837.708l.028.022c.278.203.512.354.698.453a5.741 5.741 0 00.281.14l.018.008.006.003.002.001s.11.02.308.066l.003-.001z" clipRule="evenodd" />
+    <path d="M10 8a2 2 0 100-4 2 2 0 000 4z" />
+  </svg>
+);
+
+export const SpinnerIcon = () => (
+  <svg className="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+  </svg>
+);

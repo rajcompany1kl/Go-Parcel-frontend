@@ -1,23 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useSuggestions } from "../hooks/useSuggestions";
 import { useMap } from "../hooks/useMap";
-import { formatRouteData } from "../Utils";
+import { formatRouteData, getEstimatedDeliveryDate } from "../Utils";
 import useAuth from "../hooks/useAuth";
 import DeliveryTrackingDetails from "../../modules/Home/Components/DeliveryTrackingDetails";
-
-const LocationPinIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 text-gray-400">
-    <path fillRule="evenodd" d="M9.69 18.933l.003.001C9.89 19.02 10 19 10 19s.11.02.308-.066l.002-.001.006-.003.018-.008a5.741 5.741 0 00.281-.14c.186-.1.42-.25.698-.453l.028-.022c.283-.226.568-.46.837-.708l.01-.009.019-.016a1 1 0 00.004-.99c-.004-.005-.008-.009-.013-.014a10.042 10.042 0 00-1.284-1.342A8.042 8.042 0 0110 2a8.042 8.042 0 014.228 11.087 10.042 10.042 0 00-1.283 1.342 1 1 0 00-.013.014.996.996 0 00.004.99l.019.016.01.009c.27.248.554.482.837.708l.028.022c.278.203.512.354.698.453a5.741 5.741 0 00.281.14l.018.008.006.003.002.001s.11.02.308.066l.003-.001z" clipRule="evenodd" />
-    <path d="M10 8a2 2 0 100-4 2 2 0 000 4z" />
-  </svg>
-);
-
-const SpinnerIcon = () => (
-  <svg className="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-  </svg>
-);
+import HomeFactory from "../../modules/Home/factory";
+import useService from "../hooks/useServices";
+import { LocationPinIcon, SpinnerIcon } from "./ui/Icons";
 
 const Sidebar: React.FC = () => {
   type FieldType = "origin" | "destination";
@@ -27,8 +16,9 @@ const Sidebar: React.FC = () => {
   const [activeField, setActiveField] = useState<FieldType | null>(null);
   const [routeData, setRouteData] = useState<{ distance: string, duration: string } | null>(null)
 
-  const { setOrigin, setDestination, origin, destination, routeInfo } = useMap()
-  const { role } = useAuth()
+  const { setOrigin, setDestination, origin, destination, routeInfo, geocodeAddress } = useMap()
+  const { role, user } = useAuth()
+  const services = useService()
 
   const activeSearchTerm = activeField === "origin" ? originInput : destinationInput;
   const { suggestions, isLoading } = useSuggestions(activeSearchTerm);
@@ -54,10 +44,41 @@ const Sidebar: React.FC = () => {
     }
   };
 
+  async function createDelivery(
+    originCoords: [number, number], 
+    destinationCoords: [number, number]
+  ) {
+    if(routeInfo) {
+      const deliveryPayload = HomeFactory.createRide({
+            adminId: user?.id as string,
+            distance: routeInfo.distance.toString(),
+            end_location: { lat: destinationCoords[0], lng: destinationCoords[1] },
+            start_location: { lat: originCoords[0], lng: originCoords[1] },
+            startAddress: originInput,
+            endAddress: destinationInput,
+            initialDriverLocation: { lat: originCoords[0], lng: originCoords[1] }
+          });
+      const response = await services.home.createDelivery(deliveryPayload)
+      if(response.data) {
+        console.log(response.data)
+      }
+    }
+  }
+
+  const getCoordinates = async() => {
+    const originCoordinates = await geocodeAddress(origin)
+    const destinationCoordinates = await geocodeAddress(destination)
+    if(originCoordinates && destinationCoordinates) {
+      createDelivery(originCoordinates, destinationCoordinates)
+    }
+  }
+
   useEffect(() => {
     if(origin && destination && routeInfo) {
-      const { distance, duration } = formatRouteData(routeInfo?.distance, routeInfo.duration)
+      const { distance } = formatRouteData(routeInfo?.distance, routeInfo.duration)
+      const duration = getEstimatedDeliveryDate(routeInfo.duration)
       setRouteData({ distance, duration })
+      getCoordinates();
     }
   },[routeInfo])
 
@@ -123,15 +144,13 @@ const Sidebar: React.FC = () => {
         </div>
       </div>
 
-      {origin && destination && routeInfo && <div className="space-y-1 border border-gray-200 rounded-md p-2">
-        <strong className="text-base">Route Info:</strong>
+      {origin && destination && routeInfo && <div className="space-y-1 bg-slate-50 shadow-lg rounded-md p-2">
         <div className="flex flex-col">
           <p className="text-base"><strong>Distance:</strong> {routeData?.distance}</p>
-          <p className="text-base"><strong>Estimated Time:</strong> {routeData?.duration}</p>
+          <p className="text-base"><strong>ETA:</strong> {routeData?.duration}</p>
         </div>
       </div>}
       
-      {/* Action Button */}
       <div className="mt-6">
         <button onClick={handleFindRoute} className="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300">
           Find Route

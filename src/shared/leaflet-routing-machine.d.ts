@@ -45,3 +45,22 @@ declare module 'leaflet' {
     function osrmv1(options?: OSRMV1Options): IRouter;
   }
 }
+
+declare module 'react-leaflet-animated-marker/lib/index.js' {
+    import * as React from 'react';
+    import * as L from 'leaflet';
+
+    interface AnimatedMarkerProps {
+        position: [number, number];
+        line: [number, number][];
+        icon?: L.Icon;
+        options?: {
+            interval?: number;
+            onEnd?: () => void;
+        };
+    }
+
+    const AnimatedMarker: React.ComponentType<AnimatedMarkerProps>;
+    export = AnimatedMarker;
+}
+

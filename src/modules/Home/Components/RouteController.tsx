@@ -11,31 +11,11 @@ interface RouteControllerProps {
 }
 
 const RouteController: React.FC<RouteControllerProps> = ({ onRouteFound }) => {
-    const { mapInstance, origin, destination, setRouteInfo } = useMap();
+    const { mapInstance, origin, destination, setRouteInfo, geocodeAddress } = useMap();
     const services = useService();
     const routingControlRef = useRef<L.Routing.Control | null>(null);
     const pickupMarkerRef = useRef<L.Marker | null>(null);
     const dropMarkerRef = useRef<L.Marker | null>(null);
-
-    const geocodeAddress = useCallback(async (address: string): Promise<[number, number] | null> => {
-        if (!address.trim()) return null;
-        try {
-            const {data:results} = await services.home.getCoordinates(address)
-            const primaryResult = Array.isArray(results) ? results[0] : results;
-
-            if (primaryResult && primaryResult.lat && primaryResult.lon) {
-                const lat = parseFloat(primaryResult.lat);
-                const lon = parseFloat(primaryResult.lon);
-                if (!isNaN(lat) && !isNaN(lon)) {
-                    return [lat, lon];
-                }
-            }
-            return null;
-        } catch (error) {
-            console.error('Geocoding error:', error);
-            return null;
-        }
-    }, [services.home]);
 
     useEffect(() => {
         if (!mapInstance) return;

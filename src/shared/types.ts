@@ -27,7 +27,7 @@ export interface DriverUserAccount {
     currentLoc: Location
 }
 
-export interface Rides {
+export interface Ride {
     adminId: string,
     driverId: string,
     rideStartAt: number,
@@ -36,15 +36,13 @@ export interface Rides {
     isRideEnded: boolean
     date: number,
     distance: string,
-    direction: DirectionsResponse | null
-}
-
-export interface DirectionsResponse {
-  routes: Route[];
+    leg: Leg,
+    lastDriverLocation: Coordinates,
+    route?: Route
 }
 
 export interface Route {
-  legs: Leg[];
+  legs: Omit<Leg,'start_address' | 'end_address'>[];
 }
 
 export interface Leg {
@@ -52,24 +50,21 @@ export interface Leg {
   end_address: string;
   start_location: Coordinates;
   end_location: Coordinates;
-  distance: Distance;
-  duration: Duration;
 }
 
 export interface Coordinates {
   lat: number;
   lng: number;
 }
-
-export interface Distance {
-  text: string;   // e.g., "215 mi"
-  value: number;  // in meters
-}
-
-export interface Duration {
-  text: string;   // e.g., "3 hours 45 mins"
-  value: number;  // in seconds
-}
+export type CreateRideParams = {
+    adminId: string;
+    distance: string;
+    startAddress: string;
+    endAddress: string;
+    start_location: Coordinates;
+    end_location: Coordinates;
+    initialDriverLocation: Coordinates;
+};
 
 export type IconType = {
     className:string

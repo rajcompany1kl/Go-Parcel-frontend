@@ -1,3 +1,4 @@
+import type { Ride } from "../../../shared/types";
 import http from "../../../shared/Utils/http";
 
 async function getCoordinates(address: string): Promise<any | null> {
@@ -22,5 +23,14 @@ async function placesAutocompletion(query: string, options?: { signal: AbortSign
     }
 }
 
-const HomeServices = { getCoordinates, placesAutocompletion }
+async function createDelivery(payload: Ride) {
+    try {
+        const { data } = await http.post('/AdminUser/assign',payload)
+        return data
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+const HomeServices = { getCoordinates, placesAutocompletion, createDelivery }
 export default HomeServices
