@@ -1,13 +1,20 @@
+import React, { use, useEffect, useRef, useState } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import PendingChats from '../Components/PendingChats';
 import type { ChatEndedPayload, ChatStartedPayload, Message, PendingUser, ReceiveMessagePayload } from '../types';
 import ChatRoom from '../Components/ChatRoom';
+import useAuth from '../../../shared/hooks/useAuth';
 
 const SERVER = 'http://localhost:5000';
 
 export default function AdminPanel() {
-  const [adminId] = useState<string>('admin-' + Math.random().toString(36).slice(2, 8));
+   const { user, role } = useAuth();
+
+  // If you want admin id
+  const adminId = role === 'admin' ? user?.id : null;
+
+ // const [adminId] = useState<string>('admin-' + Math.random().toString(36).slice(2, 8));
   const [pending, setPending] = useState<PendingUser[]>([]);
   const [roomId, setRoomId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -25,8 +32,8 @@ export default function AdminPanel() {
       setPending(list);
     });
 
-    socket.on('newChatRequest', ({ userId, userName }: PendingUser) => {
-      setPending((prev) => [...prev, { userId, userName }]);
+    socket.on('newChatRequest', ({ userId, userName, trackingId }: PendingUser) => {
+      setPending((prev) => [...prev, { userId, userName, trackingId }]);
     });
 
     socket.on('removePending', ({ userId }: { userId: string }) => {
@@ -58,7 +65,7 @@ export default function AdminPanel() {
     if (messagesRef.current) messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
   }, [messages]);
 
- function accept(userId: string) {
+ function accept(userId: string, trackingId: string) {
   if (roomId) {
     // End current chat first
     socketRef.current?.emit('endChat', { roomId, by: 'admin' });
@@ -69,7 +76,7 @@ export default function AdminPanel() {
   }
 
   // Accept new chat
-  socketRef.current?.emit('acceptChat', { userId, adminId, adminName: 'Support' });
+  socketRef.current?.emit('acceptChat', { userId, adminId, adminName: 'Support', trackingId });
   setPending((prev) => prev.filter((p) => p.userId !== userId));
 }
 
