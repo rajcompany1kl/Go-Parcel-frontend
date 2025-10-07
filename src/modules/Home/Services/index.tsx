@@ -41,5 +41,17 @@ async function getDeliveryDetails(trackingId: string) {
     }
 }
 
-const HomeServices = { getCoordinates, placesAutocompletion, createDelivery, getDeliveryDetails }
+async function getAddressUsingCoords(
+    lat: number,
+    lng: number
+) {
+    try {
+        const { data } = await http.get(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+        return data
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+const HomeServices = { getCoordinates, placesAutocompletion, createDelivery, getDeliveryDetails, getAddressUsingCoords }
 export default HomeServices
