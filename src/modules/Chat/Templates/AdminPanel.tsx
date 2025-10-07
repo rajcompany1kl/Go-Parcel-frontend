@@ -25,8 +25,8 @@ export default function AdminPanel() {
       setPending(list);
     });
 
-    socket.on('newChatRequest', ({ userId, userName }: PendingUser) => {
-      setPending((prev) => [...prev, { userId, userName }]);
+    socket.on('newChatRequest', ({ userId, userName, trackingId }: PendingUser) => {
+      setPending((prev) => [...prev, { userId, userName, trackingId }]);
     });
 
     socket.on('removePending', ({ userId }: { userId: string }) => {
@@ -58,7 +58,7 @@ export default function AdminPanel() {
     if (messagesRef.current) messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
   }, [messages]);
 
- function accept(userId: string) {
+ function accept(userId: string, trackingId: string) {
   if (roomId) {
     // End current chat first
     socketRef.current?.emit('endChat', { roomId, by: 'admin' });
@@ -69,7 +69,7 @@ export default function AdminPanel() {
   }
 
   // Accept new chat
-  socketRef.current?.emit('acceptChat', { userId, adminId, adminName: 'Support' });
+  socketRef.current?.emit('acceptChat', { userId, adminId, adminName: 'Support', trackingId });
   setPending((prev) => prev.filter((p) => p.userId !== userId));
 }
 

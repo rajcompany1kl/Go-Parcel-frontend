@@ -1,7 +1,7 @@
 import React from 'react'
 import type { PendingUser } from '../types';
 
-const PendingChats: React.FC<{ p: PendingUser; accept: (userId: string) => void }> = ({ p, accept }) => {
+const PendingChats: React.FC<{ p: PendingUser; accept: (userId: string, trackingId: string) => void }> = ({ p, accept }) => {
     return (
         <div key={p.userId} style={{
             display: 'flex',
@@ -14,7 +14,7 @@ const PendingChats: React.FC<{ p: PendingUser; accept: (userId: string) => void 
                 <strong>{p.userName}</strong> <small style={{ color: '#6b7280' }}>({p.userId})</small>
             </div>
             <button
-                onClick={() => accept(p.userId)}
+                onClick={() => accept(p.userId, p.trackingId)} 
                 style={{
                     backgroundColor: '#3b82f6',
                     color: '#fff',
