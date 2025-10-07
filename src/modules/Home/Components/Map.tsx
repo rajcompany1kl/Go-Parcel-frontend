@@ -36,7 +36,7 @@ const Map: React.FC = () => {
     }, [setMapInstance]); 
 
     return (
-        <div id="home-map" ref={mapContainerRef} className="w-full mx-auto h-full rounded-2xl shadow-xl">
+        <div id="home-map" ref={mapContainerRef} className="w-full mx-auto h-full rounded-2xl z-0">
             {mapInstanceRef.current && (
                 <React.Fragment>
                     <RouteController onRouteFound={setRouteCoordinates} />
