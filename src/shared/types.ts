@@ -1,3 +1,5 @@
+import type { Dispatch, SetStateAction } from "react"
+
 export interface AdminUserAccount {
     id: string,
     firstName: string,
@@ -25,7 +27,7 @@ export interface DriverUserAccount {
     currentLoc: Location
 }
 
-export interface Rides {
+export interface Ride {
     adminId: string,
     driverId: string,
     rideStartAt: number,
@@ -34,15 +36,13 @@ export interface Rides {
     isRideEnded: boolean
     date: number,
     distance: string,
-    direction: DirectionsResponse | null
-}
-
-export interface DirectionsResponse {
-  routes: Route[];
+    leg: Leg,
+    lastDriverLocation: Coordinates,
+    route?: Route
 }
 
 export interface Route {
-  legs: Leg[];
+  legs: Omit<Leg,'start_address' | 'end_address'>[];
 }
 
 export interface Leg {
@@ -50,28 +50,27 @@ export interface Leg {
   end_address: string;
   start_location: Coordinates;
   end_location: Coordinates;
-  distance: Distance;
-  duration: Duration;
 }
 
 export interface Coordinates {
   lat: number;
   lng: number;
 }
-
-export interface Distance {
-  text: string;   // e.g., "215 mi"
-  value: number;  // in meters
-}
-
-export interface Duration {
-  text: string;   // e.g., "3 hours 45 mins"
-  value: number;  // in seconds
-}
+export type CreateRideParams = {
+    adminId: string;
+    distance: string;
+    startAddress: string;
+    endAddress: string;
+    start_location: Coordinates;
+    end_location: Coordinates;
+    initialDriverLocation: Coordinates;
+};
 
 export type IconType = {
     className:string
 }
+
+export type RoleType = 'admin' | 'user' | 'driver'
 
 export interface AuthContextType {
     user: AdminUserAccount | DriverUserAccount | null;
@@ -79,6 +78,8 @@ export interface AuthContextType {
     register: (role: string, userObject: AdminUserAccount | DriverUserAccount, setFormState: (formState: boolean) => void) => Promise<boolean>,
     logout: (navigate: any) => void;
     getToken: () => string;
+    role: RoleType;
+    setRole: Dispatch<SetStateAction<RoleType>>
 }
 
 export interface LoginCredential { email: string, password: string }

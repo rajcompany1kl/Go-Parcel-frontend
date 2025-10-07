@@ -1,148 +1,161 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useSuggestions } from "../hooks/useSuggestions";
 import { useMap } from "../hooks/useMap";
+import { formatRouteData, getEstimatedDeliveryDate } from "../Utils";
+import useAuth from "../hooks/useAuth";
+import DeliveryTrackingDetails from "../../modules/Home/Components/DeliveryTrackingDetails";
+import HomeFactory from "../../modules/Home/factory";
+import useService from "../hooks/useServices";
+import { LocationPinIcon, SpinnerIcon } from "./ui/Icons";
 
 const Sidebar: React.FC = () => {
-  const { setOrigin, setDestination } = useMap();
+  type FieldType = "origin" | "destination";
+
   const [originInput, setOriginInput] = useState("");
   const [destinationInput, setDestinationInput] = useState("");
-  const [suggestions, setSuggestions] = useState<string[]>([]);
-  const [activeField, setActiveField] = useState<"origin" | "destination" | null>(null);
+  const [activeField, setActiveField] = useState<FieldType | null>(null);
+  const [routeData, setRouteData] = useState<{ distance: string, duration: string } | null>(null)
 
-  const fetchSuggestions = async (query: string) => {
-    if (!query.trim()) {
-      setSuggestions([]);
-      return;
-    }
+  const { setOrigin, setDestination, origin, destination, routeInfo, geocodeAddress } = useMap()
+  const { role, user } = useAuth()
+  const services = useService()
 
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=6&q=${encodeURIComponent(
-          query
-        )}`,
-        { headers: { "Accept-Language": "en" } }
-      );
+  const activeSearchTerm = activeField === "origin" ? originInput : destinationInput;
+  const { suggestions, isLoading } = useSuggestions(activeSearchTerm);
 
-      if (!response.ok) throw new Error("Nominatim error");
-
-      const data = await response.json();
-      setSuggestions(data.map((item: any) => item.display_name));
-    } catch (error) {
-      console.error("Nominatim error", error);
-      setSuggestions([]);
-    }
-  };
-
-  const handleChange = (value: string, field: "origin" | "destination") => {
+  const handleChange = (value: string, field: FieldType) => {
+    setActiveField(field);
     if (field === "origin") setOriginInput(value);
     else setDestinationInput(value);
-
-    setActiveField(field);
-    fetchSuggestions(value);
   };
 
   const handleSelect = (value: string) => {
-    if (activeField === "origin") {
-      setOriginInput(value);
-    } else if (activeField === "destination") {
-      setDestinationInput(value);
-    }
-
-    setSuggestions([]);
-    setActiveField(null);
+    if (activeField === "origin") setOriginInput(value);
+    else setDestinationInput(value);
   };
-  
-const handleSetMarkers = async () => {
-  console.log("setMarkers function from sidebar called");
 
-  const code = Math.random().toString(36).substr(2, 8).toUpperCase(); 
+  const handleFindRoute = () => {
+    if(routeData) setRouteData(null)
+    if (originInput.trim()) {
+      setOrigin(originInput.trim());
+    }
+    if (destinationInput.trim()) {
+      setDestination(destinationInput.trim());
+    }
+  };
 
-  if (originInput.trim()) setOrigin(originInput.trim());
-  if (destinationInput.trim()) setDestination(destinationInput.trim());
-
-  try {
-    const response = await fetch("http://localhost:5000/api/send-email", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        to: "kodeyan9@gmail.com",
-        subject: "Your Delivery Code",
-        text: `Your delivery code is: ${code}`,
-      }),
-    });
-
-    if (!response.ok) throw new Error("Failed to send email");
-
-    alert("Delivery code sent successfully!");
-  } catch (error) {
-    console.error("Email sending error:", error);
-    alert("Failed to send delivery code.");
+  async function createDelivery(
+    originCoords: [number, number], 
+    destinationCoords: [number, number]
+  ) {
+    if(routeInfo) {
+      const deliveryPayload = HomeFactory.createRide({
+            adminId: user?.id as string,
+            distance: routeInfo.distance.toString(),
+            end_location: { lat: destinationCoords[0], lng: destinationCoords[1] },
+            start_location: { lat: originCoords[0], lng: originCoords[1] },
+            startAddress: originInput,
+            endAddress: destinationInput,
+            initialDriverLocation: { lat: originCoords[0], lng: originCoords[1] }
+          });
+      const response = await services.home.createDelivery(deliveryPayload)
+      if(response.data) {
+        console.log(response.data)
+      }
+    }
   }
-};
 
+  const getCoordinates = async() => {
+    const originCoordinates = await geocodeAddress(origin)
+    const destinationCoordinates = await geocodeAddress(destination)
+    if(originCoordinates && destinationCoordinates) {
+      createDelivery(originCoordinates, destinationCoordinates)
+    }
+  }
+
+  useEffect(() => {
+    if(origin && destination && routeInfo) {
+      const { distance } = formatRouteData(routeInfo?.distance, routeInfo.duration)
+      const duration = getEstimatedDeliveryDate(routeInfo.duration)
+      setRouteData({ distance, duration })
+      getCoordinates();
+    }
+  },[routeInfo])
+
+  if(role === 'user') return <DeliveryTrackingDetails />
 
   return (
-    <div className="w-80 bg-white shadow-lg p-4 rounded-2xl h-full overflow-y-auto">
-      <h2 className="text-lg font-semibold mb-4">Route Planner</h2>
+    <div className="w-96 bg-white shadow-2xl rounded-2xl p-6 font-sans flex flex-col h-full">
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">Route Planner</h1>
 
-      {/* Origin Field */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-1">Pickup Location</label>
-        <input
-          type="text"
-          value={originInput}
-          onChange={(e) => handleChange(e.target.value, "origin")}
-          placeholder="Enter pickup location"
-          className="w-full border rounded-lg px-3 py-2"
-        />
-        {activeField === "origin" && suggestions.length > 0 && (
-          <ul className="border rounded-lg mt-1 bg-white max-h-40 overflow-y-auto z-50">
-            {suggestions.map((s, i) => (
-              <li
-                key={i}
-                onClick={() => handleSelect(s)}
-                className="px-3 py-2 cursor-pointer hover:bg-gray-200"
-              >
-                {s}
-              </li>
-            ))}
-          </ul>
-        )}
+      <div className="space-y-5 flex-grow">
+        <div className="relative">
+          <label className="font-semibold text-gray-600 text-sm mb-1 block">Pickup Location</label>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <LocationPinIcon />
+            </div>
+            <input
+              type="text"
+              value={originInput}
+              onChange={(e) => handleChange(e.target.value, "origin")}
+              placeholder="Enter a starting point"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+            />
+          </div>
+        </div>
+
+        <div className="relative">
+          <label className="font-semibold text-gray-600 text-sm mb-1 block">Drop-off Location</label>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <LocationPinIcon />
+            </div>
+            <input
+              type="text"
+              value={destinationInput}
+              onChange={(e) => handleChange(e.target.value, "destination")}
+              placeholder="Enter a destination"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+            />
+          </div>
+        </div>
+        
+        <div className="relative">
+          {isLoading && (
+            <div className="flex items-center justify-center p-4 text-gray-500">
+              <SpinnerIcon />
+              <span className="ml-2">Searching...</span>
+            </div>
+          )}
+          {activeField && suggestions.length > 0 && !isLoading && (
+            <ul className="absolute w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 z-10 max-h-60 overflow-y-auto">
+              {suggestions.map((s, i) => (
+                <li 
+                  key={i}
+                  onClick={() => handleSelect(s)}
+                  className="px-4 py-2.5 cursor-pointer hover:bg-blue-50 text-gray-700 transition-colors"
+                >
+                  {s}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
 
-      {/* Destination Field */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-1">Drop Location</label>
-        <input
-          type="text"
-          value={destinationInput}
-          onChange={(e) => handleChange(e.target.value, "destination")}
-          placeholder="Enter drop location"
-          className="w-full border rounded-lg px-3 py-2"
-        />
-        {activeField === "destination" && suggestions.length > 0 && (
-          <ul className="border rounded-lg mt-1 bg-white max-h-40 overflow-y-auto z-50">
-            {suggestions.map((s, i) => (
-              <li
-                key={i}
-                onClick={() => handleSelect(s)}
-                className="px-3 py-2 cursor-pointer hover:bg-gray-200"
-              >
-                {s}
-              </li>
-            ))}
-          </ul>
-        )}
+      {origin && destination && routeInfo && <div className="space-y-1 bg-slate-50 shadow-lg rounded-md p-2">
+        <div className="flex flex-col">
+          <p className="text-base"><strong>Distance:</strong> {routeData?.distance}</p>
+          <p className="text-base"><strong>ETA:</strong> {routeData?.duration}</p>
+        </div>
+      </div>}
+      
+      <div className="mt-6">
+        <button onClick={handleFindRoute} className="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300">
+          Find Route
+        </button>
       </div>
-
-      {/* Button */}
-      <button
-        onClick={handleSetMarkers}
-        className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
-      >
-        Set Markers
-      </button>
     </div>
   );
 };
