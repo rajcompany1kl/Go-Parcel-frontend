@@ -1,18 +1,15 @@
-import React, { type JSX, type ReactNode } from 'react'
+import React, { type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../../shared/components/Header'
 import Sidebar from '../../shared/components/Sidebar'
 import ChatSection from '../../shared/components/ChatSection'
-// src/components/RoleSwitcher.tsx (Example component)
-
 import { useContext } from 'react';
-// Import the context object from where you defined it (your AuthContext file)
 import { AuthContext } from '../../shared/context/AuthContext';
 
 
 
 const DashboardLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
-   const { role, setRole } = useContext(AuthContext);
+   const { role } = useContext(AuthContext);
 
   const navigate = useNavigate();
   return (
@@ -28,12 +25,12 @@ const DashboardLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
 
          { role === 'admin' ?  
           <button
-  onClick={() => navigate('/adminchat') }
-  className="w-14 h-14 rounded-full shadow-xl bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition-all"
-  aria-label="Toggle Chat"
->
-  💬
-</button>
+            onClick={() => navigate('/adminchat') }
+            className="w-14 h-14 rounded-full shadow-xl bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition-all"
+            aria-label="Toggle Chat"
+          >
+            💬
+          </button>
          : <ChatSection />}
 
        </div>

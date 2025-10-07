@@ -6,25 +6,29 @@ import AuthService from "../../modules/Auth/Services";
 import useService from "../hooks/useServices";
 import HomeFactory from "../../modules/Home/factory";
 import { useMap } from "../hooks/useMap";
+import { io, Socket } from "socket.io-client";
+
+const SERVER = 'http://localhost:5000';
+
 
 export const default_values = {
-    admin: { 
-        id: '', 
-        firstName: '', 
-        lastName: '', 
-        email: '', 
-        password: '', 
+    admin: {
+        id: '',
+        firstName: '',
+        lastName: '',
+        email: '',
+        password: '',
         phone: 0 ,
     },
-    driver: { 
-        id: '', 
-        firstName: '', 
-        lastName: '', 
-        email: '', 
-        password: '', 
-        phone: 0, 
-        status: DriverRideStatus.NOT_AVAILABLE, 
-        currentLoc: {lat: 0.0, lng: 0.0} 
+    driver: {
+        id: '',
+        firstName: '',
+        lastName: '',
+        email: '',
+        password: '',
+        phone: 0,
+        status: DriverRideStatus.NOT_AVAILABLE,
+        currentLoc: {lat: 0.0, lng: 0.0}
     }
 }
 
@@ -48,9 +52,32 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [ role, setRole ] = useState<RoleType>('admin')
     const [trackingId, setTrackingId] = useState<string>("")
     const [ delivery, setDelivery ] = useState<Ride | any>(null)
+    const [socket, setSocket] = useState<Socket | null>(null);
+
 
     const services = useService()
     const { setOrigin, setDestination } = useMap()
+
+    useEffect(() => {
+        if (role === 'user' && delivery) {
+            const newSocket = io(SERVER);
+            setSocket(newSocket);
+
+            newSocket.emit('joinRide', delivery.adminId);
+
+            newSocket.on('locationUpdate', (location: Coordinates) => {
+                setDelivery((prevDelivery: Ride) => ({
+                    ...prevDelivery,
+                    lastDriverLocation: location,
+                }));
+            });
+
+            return () => {
+                newSocket.disconnect();
+            };
+        }
+    }, [role, delivery]);
+
 
     const logout = (navigate: any) => {
         if(role === 'admin' || role === 'driver') {
@@ -61,19 +88,18 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         } else {
             setDelivery(null)
             localStorage.removeItem('delivery')
-            window.location.href = '/auth'
         }
     }
 
     async function login(
-        role: string, 
-        credential: {email: string, password: string}, 
+        role: string,
+        credential: {email: string, password: string},
         navigate: any
     ) {
         const request = role === 'driver' ? AuthService.driver.login : AuthService.admin.login
         const response = await request(credential)
         if(response) {
-            const userObject = AuthFactory.createAdminUserAccount(role === 'driver' ? response.data.driver : response.data.user) 
+            const userObject = AuthFactory.createAdminUserAccount(role === 'driver' ? response.data.driver : response.data.user)
             localStorage.setItem('user',JSON.stringify(userObject))
             localStorage.setItem('role', role)
             const expiry = new Date(Date.now() + 30 * 60 * 1000);
@@ -86,7 +112,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     }
 
     async function register(
-        role: string, 
+        role: string,
         userObject: Omit<AdminUserAccount,'id'> | Omit<DriverUserAccount,'id' | 'status' | 'currentLoc'>,
         setFormState: (formState: boolean) => void
     ) {
@@ -138,6 +164,10 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
 
             setRole(parsedRole)
+        } else {
+            if (window.location.pathname !== '/auth') {
+                window.location.href = '/auth';
+            }
         }
     }
 
@@ -152,21 +182,21 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     };
 
     const getToken = () => Cookies.get('authToken') || ""
-    
+
     useEffect(() => {
         getRole()
     }, []);
 
     return (
         <AuthContext.Provider value={{
-            logout, 
-            user, 
-            login, 
-            register, 
-            getToken, 
-            role, 
-            setRole, 
-            trackingId, 
+            logout,
+            user,
+            login,
+            register,
+            getToken,
+            role,
+            setRole,
+            trackingId,
             setTrackingId,
             delivery,
             setDelivery,
