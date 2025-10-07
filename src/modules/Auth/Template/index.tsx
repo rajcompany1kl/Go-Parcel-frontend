@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router';
 const AuthTemplate = () => {
   const [isLogin, setIsLogin] = useState(true);
   const { role, setRole } = useAuth();
-  const [ trackingId, setTrackingId ] = useState<string>('')
+  const { trackingId, setTrackingId } = useAuth()
   const navigate = useNavigate()
 
   return (

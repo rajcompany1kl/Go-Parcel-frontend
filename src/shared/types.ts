@@ -79,7 +79,9 @@ export interface AuthContextType {
     logout: (navigate: any) => void;
     getToken: () => string;
     role: RoleType;
-    setRole: Dispatch<SetStateAction<RoleType>>
+    setRole: Dispatch<SetStateAction<RoleType>>;
+    trackingId: string;
+    setTrackingId: Dispatch<SetStateAction<string>>
 }
 
 export interface LoginCredential { email: string, password: string }
