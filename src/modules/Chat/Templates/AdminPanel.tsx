@@ -1,19 +1,27 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { use, useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import PendingChats from '../Components/PendingChats';
 import type { ChatEndedPayload, ChatStartedPayload, Message, PendingUser, ReceiveMessagePayload } from '../types';
 import ChatRoom from '../Components/ChatRoom';
+import useAuth from '../../../shared/hooks/useAuth';
 
 const SERVER = 'http://localhost:5000';
 
 export default function AdminPanel() {
-  const [adminId] = useState<string>('admin-' + Math.random().toString(36).slice(2, 8));
+   const { user, role } = useAuth();
+
+  // If you want admin id
+  const adminId = role === 'admin' ? user?.id : null;
+
+ // const [adminId] = useState<string>('admin-' + Math.random().toString(36).slice(2, 8));
   const [pending, setPending] = useState<PendingUser[]>([]);
   const [roomId, setRoomId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [text, setText] = useState<string>('');
   const socketRef = useRef<Socket | null>(null);
   const messagesRef = useRef<HTMLDivElement | null>(null);
+
+
 
   useEffect(() => {
     const socket: Socket = io(SERVER);
@@ -25,8 +33,8 @@ export default function AdminPanel() {
       setPending(list);
     });
 
-    socket.on('newChatRequest', ({ userId, userName }: PendingUser) => {
-      setPending((prev) => [...prev, { userId, userName }]);
+    socket.on('newChatRequest', ({ userId, userName, trackingId }: PendingUser) => {
+      setPending((prev) => [...prev, { userId, userName, trackingId }]);
     });
 
     socket.on('removePending', ({ userId }: { userId: string }) => {
@@ -125,4 +133,4 @@ return (
   </div>
 );
 ;
-}
+} 
