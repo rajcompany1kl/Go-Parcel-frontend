@@ -74,6 +74,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         if(response) {
             const userObject = AuthFactory.createAdminUserAccount(role === 'driver' ? response.data.driver : response.data.user) 
             localStorage.setItem('user',JSON.stringify(userObject))
+            localStorage.setItem('role', role)
             const expiry = new Date(Date.now() + 30 * 60 * 1000);
             Cookies.set('authToken',response.data.token,{expires: expiry})
             setUser(userObject)
@@ -97,6 +98,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     }
 
     async function fetchDelivery(trackingId: string, navigate: any) {
+        localStorage.setItem('role', role)
         const response = await services.home.getDeliveryDetails(trackingId)
         if (response.rides) {
             const deliveryInformation: Ride = HomeFactory.createRideFromMongoDBResponse(response.rides)
@@ -116,26 +118,42 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         }
     };
 
+    const getRole = () => {
+        const existingRole = localStorage.getItem('role')
+        if(existingRole !== null) {
+            const parsedRole: RoleType = existingRole as RoleType
+
+            if(parsedRole !== 'user') {
+                if (Cookies.get('authToken')) {
+                    getUser()
+                } else if (!Cookies.get('authToken') && window.location.pathname !== '/auth') {
+                    window.location.href = '/auth'
+                }
+            } else if (parsedRole === 'user' && localStorage.getItem('delivery')) {
+                getDelivery()
+            } else if(parsedRole === 'user' && !localStorage.getItem('delivery') && window.location.pathname !== '/auth') {
+                window.location.href = '/auth'
+            }
+
+
+            setRole(parsedRole)
+        }
+    }
+
     const getDelivery = () => {
         const storedDelivery = localStorage.getItem('delivery');
         if(storedDelivery != null) {
             const parsedUserDelivery = JSON.parse(storedDelivery);
             setDelivery(parsedUserDelivery);
+            setOrigin(parsedUserDelivery.leg.start_address)
+            setDestination(parsedUserDelivery.leg.end_address)
         }
     };
 
     const getToken = () => Cookies.get('authToken') || ""
     
     useEffect(() => {
-        if(role !== 'user') {
-            if (Cookies.get('authToken')) {
-                getUser()
-            } else if (!Cookies.get('authToken') && window.location.pathname !== '/auth') {
-                window.location.href = '/auth'
-            }
-        } else if (role === 'user' && localStorage.getItem('delivery')) {
-            getDelivery()
-        }
+        getRole()
     }, []);
 
     return (
