@@ -8,8 +8,11 @@ import { useNavigate } from 'react-router';
 const AuthTemplate = () => {
   const [isLogin, setIsLogin] = useState(true);
   const { role, setRole } = useAuth();
-  const { trackingId, setTrackingId } = useAuth()
+  const { trackingId, setTrackingId, fetchDelivery } = useAuth()
+
   const navigate = useNavigate()
+
+  const handleTracking = () => fetchDelivery(trackingId, (path: string) => navigate(path))
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center">
@@ -47,7 +50,7 @@ const AuthTemplate = () => {
                 />
               </div>
               <button
-                  onClick={() => navigate('/')}
+                  onClick={handleTracking}
                   className="w-full bg-neutral-900 text-white py-3 rounded-lg font-semibold hover:bg-neutral-700 transition"
               >
                 Track your delivery

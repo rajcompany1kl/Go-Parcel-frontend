@@ -12,7 +12,6 @@ const DeliverySimulation: React.FC<DeliverySimulationProps> = ({ routeCoordinate
     const { mapInstance } = useMap();
     const markerRef = useRef<L.Marker | null>(null);
     const timeoutRef = useRef<number | null>(null);
-    // State is now for remaining time, not distance
     const [remainingTime, setRemainingTime] = useState<string | null>(null);
 
     const deliveryIcon = useMemo(() => L.icon(DeliveryMarker), []);

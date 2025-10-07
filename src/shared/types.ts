@@ -81,7 +81,10 @@ export interface AuthContextType {
     role: RoleType;
     setRole: Dispatch<SetStateAction<RoleType>>;
     trackingId: string;
-    setTrackingId: Dispatch<SetStateAction<string>>
+    setTrackingId: Dispatch<SetStateAction<string>>;
+    delivery: Ride | null
+    setDelivery: Dispatch<SetStateAction<Ride>>;
+    fetchDelivery: (trackingId: string, navigate: any) => void 
 }
 
 export interface LoginCredential { email: string, password: string }
