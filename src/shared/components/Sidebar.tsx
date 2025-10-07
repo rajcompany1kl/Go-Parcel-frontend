@@ -15,6 +15,7 @@ const Sidebar: React.FC = () => {
   const [destinationInput, setDestinationInput] = useState("");
   const [activeField, setActiveField] = useState<FieldType | null>(null);
   const [routeData, setRouteData] = useState<{ distance: string, duration: string } | null>(null)
+  const [loading, setLoading] = useState<boolean>(false) 
 
   const { setOrigin, setDestination, origin, destination, routeInfo, geocodeAddress } = useMap()
   const { role, user } = useAuth()
@@ -35,6 +36,7 @@ const Sidebar: React.FC = () => {
   };
 
   const handleFindRoute = () => {
+    setLoading(true)
     if(routeData) setRouteData(null)
     if (originInput.trim()) {
       setOrigin(originInput.trim());
@@ -59,6 +61,9 @@ const Sidebar: React.FC = () => {
             initialDriverLocation: { lat: originCoords[0], lng: originCoords[1] }
           });
       const response = await services.home.createDelivery(deliveryPayload)
+      setLoading(false)
+      setDestinationInput("")
+      setOriginInput("")
       if(response.data) {
         console.log(response.data)
       }
@@ -74,7 +79,7 @@ const Sidebar: React.FC = () => {
   }
 
   useEffect(() => {
-    if(origin && destination && routeInfo) {
+    if(origin && destination && routeInfo && role !== 'user') {
       const { distance } = formatRouteData(routeInfo?.distance, routeInfo.duration)
       const duration = getEstimatedDeliveryDate(routeInfo.duration)
       setRouteData({ distance, duration })
@@ -152,8 +157,8 @@ const Sidebar: React.FC = () => {
       </div>}
       
       <div className="mt-6">
-        <button onClick={handleFindRoute} className="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300">
-          Find Route
+        <button onClick={handleFindRoute} className="w-full text-white font-bold py-3 px-4 rounded-lg bg-neutral-800 transition-all duration-300 transform hover:ring-2 ring-neutral-800 ring-offset-2">
+          {!loading ? 'Create Delivery' : 'Creating delivery...'}
         </button>
       </div>
     </div>

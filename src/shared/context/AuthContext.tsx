@@ -61,6 +61,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         } else {
             setDelivery(null)
             localStorage.removeItem('delivery')
+            window.location.href = '/auth'
         }
     }
 
