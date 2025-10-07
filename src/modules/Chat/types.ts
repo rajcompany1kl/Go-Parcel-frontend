@@ -1,7 +1,6 @@
 export interface PendingUser {
   userId: string;
   userName: string;
-  trackingId: string;
 }
 
 export interface Message {

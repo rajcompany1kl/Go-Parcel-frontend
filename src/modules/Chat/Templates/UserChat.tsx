@@ -1,8 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
-import useAuth from '../../../shared/hooks/useAuth';
-
 import type {
   Message,
   ChatStartedPayload,
@@ -15,8 +13,6 @@ import ChatMessages from '../Components/ChatMessages';
 const SERVER = 'http://localhost:5000';
 
 export default function UserChat() {
-  const { trackingId } = useAuth(); 
-
   const { userId } = useParams<{ userId: string }>();
   const [status, setStatus] = useState<'requesting' | 'waiting' | 'connected' | 'ended'>('requesting');
   const [roomId, setRoomId] = useState<string | null>(null);
@@ -28,11 +24,10 @@ export default function UserChat() {
 
   useEffect(() => {
     const socket = io(SERVER);
-
     socketRef.current = socket;
     const userName = `User-${userId?.slice(-4) || '0000'}`;
 
-    socket.emit('chatRequest', { userId, userName, trackingId });
+    socket.emit('chatRequest', { userId, userName });
 
     socket.on('waitingForAdmin', () => setStatus('waiting'));
 
