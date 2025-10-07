@@ -1,16 +1,12 @@
 import { useEffect, useState } from 'react';
 import useAuth from '../../../shared/hooks/useAuth'
 import useService from '../../../shared/hooks/useServices';
-import type { Coordinates, Ride } from '../../../shared/types';
-import HomeFactory from '../factory';
-import { useMap } from '../../../shared/hooks/useMap';
+import type { Coordinates } from '../../../shared/types';
 
 const DeliveryTrackingDetails = () => {
-    const { trackingId } = useAuth()
+    const { delivery } = useAuth()
     const services = useService()
-    const { setOrigin, setDestination } = useMap()
  
-    const [delivery, setDelivery] = useState<Ride | null>(null)
     const [formattedDistance, setFormattedDistance] = useState<string>("")
     const [ lastDriverLocationAddress, setLastDriverLocationAddress ] = useState<string>("")
 
@@ -19,22 +15,13 @@ const DeliveryTrackingDetails = () => {
         setLastDriverLocationAddress(response?.display_name)
     }
 
-    const fetchDetails = async () => {
-        const response = await services.home.getDeliveryDetails(trackingId)
-        if (response.rides) {
-            const deliveryInformation: Ride = HomeFactory.createRideFromMongoDBResponse(response.rides)
-            setDelivery(deliveryInformation)
-            const distanceKm = Number(deliveryInformation.distance) / 1000;
-            setFormattedDistance(`${distanceKm.toFixed(2)} KM`);
-            fetchAddress(deliveryInformation.lastDriverLocation)
-            setOrigin(deliveryInformation.leg.start_address)
-            setDestination(deliveryInformation.leg.end_address)
-        }
-    }
-
     useEffect(() => {
-        fetchDetails()
-    }, [])
+        if(delivery) {
+            fetchAddress(delivery.lastDriverLocation)
+            const distanceInKm = Number(delivery.distance) / 1000;
+            setFormattedDistance(`${distanceInKm.toFixed(2)} KM`)
+        }
+    },[delivery])
 
     return (
         // Sidebar Container

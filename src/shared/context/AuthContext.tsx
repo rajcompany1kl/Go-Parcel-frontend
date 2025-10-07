@@ -1,8 +1,11 @@
 import { createContext, useEffect, useState, type ReactNode } from "react";
-import { DriverRideStatus, type AdminUserAccount, type AuthContextType, type DriverUserAccount, type RoleType } from "../types";
+import { DriverRideStatus, type AdminUserAccount, type AuthContextType, type Coordinates, type DriverUserAccount, type Ride, type RoleType } from "../types";
 import Cookies from "js-cookie";
 import * as AuthFactory from '../../modules/Auth/factory'
 import AuthService from "../../modules/Auth/Services";
+import useService from "../hooks/useServices";
+import HomeFactory from "../../modules/Home/factory";
+import { useMap } from "../hooks/useMap";
 
 export const default_values = {
     admin: { 
@@ -34,19 +37,31 @@ export const AuthContext = createContext<AuthContextType>({
     role: 'admin',
     setRole: () => {},
     trackingId: "",
-    setTrackingId: () => {}
+    setTrackingId: () => {},
+    delivery: null,
+    setDelivery: () => {},
+    fetchDelivery: () => {}
 })
 
 const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<DriverUserAccount | AdminUserAccount | any>();
     const [ role, setRole ] = useState<RoleType>('admin')
     const [trackingId, setTrackingId] = useState<string>("")
+    const [ delivery, setDelivery ] = useState<Ride | any>(null)
+
+    const services = useService()
+    const { setOrigin, setDestination } = useMap()
 
     const logout = (navigate: any) => {
-        Cookies.remove('authToken')
-        navigate('/auth')
-        localStorage.clear()
-        setUser(default_values.admin);
+        if(role === 'admin' || role === 'driver') {
+            Cookies.remove('authToken')
+            navigate('/auth')
+            localStorage.clear()
+            setUser(default_values.admin);
+        } else {
+            setDelivery(null)
+            localStorage.removeItem('delivery')
+        }
     }
 
     async function login(
@@ -81,6 +96,18 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         } else return false
     }
 
+    async function fetchDelivery(trackingId: string, navigate: any) {
+        const response = await services.home.getDeliveryDetails(trackingId)
+        if (response.rides) {
+            const deliveryInformation: Ride = HomeFactory.createRideFromMongoDBResponse(response.rides)
+            setDelivery(deliveryInformation)
+            localStorage.setItem('delivery',JSON.stringify(deliveryInformation))
+            setOrigin(deliveryInformation.leg.start_address)
+            setDestination(deliveryInformation.leg.end_address)
+            navigate('/')
+        }
+    }
+
     const getUser = () => {
         const storedUser = localStorage.getItem('user');
         if(storedUser != null) {
@@ -89,18 +116,43 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         }
     };
 
+    const getDelivery = () => {
+        const storedDelivery = localStorage.getItem('delivery');
+        if(storedDelivery != null) {
+            const parsedUserDelivery = JSON.parse(storedDelivery);
+            setDelivery(parsedUserDelivery);
+        }
+    };
+
     const getToken = () => Cookies.get('authToken') || ""
     
     useEffect(() => {
-        if (Cookies.get('authToken') && role != 'user') {
-            getUser()
-        } else if (!Cookies.get('authToken') && window.location.pathname !== '/auth' && role !== 'user') {
-            window.location.href = '/auth'
+        if(role !== 'user') {
+            if (Cookies.get('authToken')) {
+                getUser()
+            } else if (!Cookies.get('authToken') && window.location.pathname !== '/auth') {
+                window.location.href = '/auth'
+            }
+        } else if (role === 'user' && localStorage.getItem('delivery')) {
+            getDelivery()
         }
     }, []);
 
     return (
-        <AuthContext.Provider value={{logout, user, login, register, getToken, role, setRole, trackingId, setTrackingId}}>
+        <AuthContext.Provider value={{
+            logout, 
+            user, 
+            login, 
+            register, 
+            getToken, 
+            role, 
+            setRole, 
+            trackingId, 
+            setTrackingId,
+            delivery,
+            setDelivery,
+            fetchDelivery
+        }}>
             {children}
         </AuthContext.Provider>
     )

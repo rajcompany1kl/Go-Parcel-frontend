@@ -4,11 +4,11 @@ import AuthProvider from '../shared/context/AuthContext'
 import { MapProvider } from '../shared/context/MapContext'
 
 const Provider = () => {
-  return <AuthProvider>
-    <MapProvider>
+  return <MapProvider>
+    <AuthProvider>
       <RouterProvider router={Router}/>
-    </MapProvider>
-  </AuthProvider>
+    </AuthProvider>
+  </MapProvider>
 }
 
 export default Provider
