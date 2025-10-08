@@ -8,20 +8,13 @@ import DeliverySimulation from './DeliverySimulation';
 const Map: React.FC = () => {
     const mapContainerRef = useRef<HTMLDivElement>(null);
     const mapInstanceRef = useRef<L.Map | null>(null);
-    const { setMapInstance } = useMap();
+    const { setMapInstance, setOrigin, setDestination } = useMap();
     const [routeCoordinates, setRouteCoordinates] = useState<L.LatLng[]>([]);
 
     useEffect(() => {
         if (mapContainerRef.current && !mapInstanceRef.current) {
-            const map = L.map(mapContainerRef.current, {
-                center: [24.5854, 73.7125],
-                zoom: 13,
-            });
-
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; OpenStreetMap contributors',
-            }).addTo(map);
-
+            const map = L.map(mapContainerRef.current, {center: [24.5854, 73.7125], zoom: 13 });
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
             mapInstanceRef.current = map;
             setMapInstance(map);
         }
@@ -31,6 +24,8 @@ const Map: React.FC = () => {
                 mapInstanceRef.current.remove();
                 mapInstanceRef.current = null;
                 setMapInstance(null);
+                setOrigin("")
+                setDestination("")
             }
         };
     }, [setMapInstance]); 

@@ -1,4 +1,5 @@
-import type { ReactNode } from "react";
+import type { Dispatch, ReactNode, SetStateAction } from "react";
+import type { Ride } from "../../shared/types";
 
 export interface RouteInfo {
   distance: number;
@@ -28,4 +29,13 @@ export interface ExtendedMapContextType extends MapContextType {
 
 export interface MapProviderProps {
   children: ReactNode;
+}
+
+// inside useDelivery.ts
+export type DeliveryContextType = {
+  trackingId: string;
+  setTrackingId: Dispatch<SetStateAction<string>>;
+  delivery: Ride | null
+  setDelivery: Dispatch<SetStateAction<Ride>>;
+  fetchDelivery: (trackingId: string, navigate: any) => void
 }

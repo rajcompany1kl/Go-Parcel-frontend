@@ -53,5 +53,16 @@ async function getAddressUsingCoords(
     }
 }
 
-const HomeServices = { getCoordinates, placesAutocompletion, createDelivery, getDeliveryDetails, getAddressUsingCoords }
+async function getAllDeliveries(
+    adminId: string
+) {
+    try {
+        const { data } = await http.get(`/AdminUser/rides/${adminId}`)
+        return data
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+const HomeServices = { getCoordinates, placesAutocompletion, createDelivery, getDeliveryDetails, getAddressUsingCoords, getAllDeliveries }
 export default HomeServices

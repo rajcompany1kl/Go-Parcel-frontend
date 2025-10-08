@@ -1,3 +1,4 @@
+import { ContextMenuItemType, type ContextMenuType } from "../../shared/components/ui/ContextMenu";
 import type { CreateRideParams, Leg, Ride } from "../../shared/types";
 
 
@@ -84,5 +85,23 @@ export const createRideFromMongoDBResponse = (dto: any): Ride => {
     };
 };
 
-const HomeFactory = {createRide, createRideFromMongoDBResponse}
+export const createAdminDeliveriesContextMenuItems = (deliveries: Ride[], setOrigin: any, setDestination: any): ContextMenuType[] => {
+    const menu: ContextMenuType[] = []
+    for(let delivery of deliveries) {
+        if(delivery.leg.start_address !== '' && delivery.leg.end_address !== '') {
+            menu.push({ 
+                key: `${delivery.driverId}-${delivery.adminId}`, 
+                label: `${delivery.leg.start_address.split(',')[0]} - ${delivery.leg.end_address.split(',')[0]}`, 
+                type: ContextMenuItemType.ITEM, 
+                action: () => {
+                    setOrigin(delivery.leg.start_address)
+                    setDestination(delivery.leg.end_address)
+                }
+            }) 
+        }
+    }
+    return menu;
+}
+
+const HomeFactory = {createRide, createRideFromMongoDBResponse, createAdminDeliveriesContextMenuItems}
 export default HomeFactory

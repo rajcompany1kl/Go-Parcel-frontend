@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import '../../../App.css'
 
 export enum ContextMenuItemType {
     ITEM = "ITEM",
@@ -46,11 +47,11 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ items, children }) => {
         return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
     }
 
-    const renderMenuItem = (item: ContextMenuType) => {
+    const renderMenuItem = (item: ContextMenuType, index: number) => {
         switch (item.type) {
             case ContextMenuItemType.PROFILE:
                 return (
-                    <div key={item.key} className="flex items-center px-4 py-3">
+                    <div key={`${index}-${item.key}`} className="flex items-center px-4 py-3">
                         <div className="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-semibold text-lg mr-3">
                             {item.avatar && getInitials(item.avatar.firstName, item.avatar.lastName)}
                         </div>
@@ -60,12 +61,12 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ items, children }) => {
                     </div>
                 )
             case ContextMenuItemType.SEPARATOR:
-                return <div key={item.key} className="h-px bg-gray-200 my-1" />;
+                return <div key={`${index}-${item.key}`} className="h-px bg-gray-200 my-1" />;
 
             case ContextMenuItemType.ITEM:
                 return (
                     <div
-                        key={item.key}
+                        key={`${index}-${item.key}`}
                         onClick={item.action}
                         className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer rounded-md mx-2 my-1 transition-colors duration-150"
                     >
@@ -76,14 +77,14 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ items, children }) => {
             case ContextMenuItemType.SUBMENU:
                 // TODO: Implement Submenu here
                 return (
-                    <div key={item.key} className="px-4 py-2 text-sm text-gray-700">
+                    <div key={`${index}-${item.key}`} className="px-4 py-2 text-sm text-gray-700">
                         {item.label}
                     </div>
                 );
 
             default:
                 return (
-                    <div key={item.key} className="px-4 py-2 text-sm text-gray-500">
+                    <div key={`${index}-${item.key}`} className="px-4 py-2 text-sm text-gray-500">
                         {item.label}
                     </div>
                 );
@@ -99,8 +100,12 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ items, children }) => {
             {children}
             {isOpen && (
                 <div
-                    className="absolute right-0 mt-2 w-64 origin-top-right bg-white rounded-xl shadow-2xl z-50 p-2"
-                    style={{ backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
+                    className="absolute right-0 mt-2 w-64 origin-top-right bg-white rounded-xl shadow-2xl z-50 p-2 max-h-[40vh] h-fit overflow-y-scroll hide-scrollbar"
+                    style={{
+                        backdropFilter: 'blur(10px)',
+                        WebkitBackdropFilter: 'blur(10px)',
+                        backgroundColor: 'rgba(255, 255, 255, 0.8)'
+                    }}
                 >
                     {items.map(renderMenuItem)}
                 </div>

@@ -44,15 +44,18 @@ export const AuthContext = createContext<AuthContextType>({
     setTrackingId: () => {},
     delivery: null,
     setDelivery: () => {},
-    fetchDelivery: () => {}
+    fetchDelivery: () => {},
+    adminDeliveries: [],
+    setAdminDeliveries: () => {}
 })
 
 const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [user, setUser] = useState<DriverUserAccount | AdminUserAccount | any>();
+    const [ user, setUser ] = useState<DriverUserAccount | AdminUserAccount | any>();
     const [ role, setRole ] = useState<RoleType>('admin')
-    const [trackingId, setTrackingId] = useState<string>("")
+    const [ trackingId, setTrackingId ] = useState<string>("")
     const [ delivery, setDelivery ] = useState<Ride | any>(null)
-    const [socket, setSocket] = useState<Socket | null>(null);
+    const [ _, setSocket ] = useState<Socket | null>(null);
+    const [ adminDeliveries, setAdminDeliveries ] = useState<Ride[]>([])
 
 
     const services = useService()
@@ -202,7 +205,9 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
             setTrackingId,
             delivery,
             setDelivery,
-            fetchDelivery
+            fetchDelivery,
+            adminDeliveries,
+            setAdminDeliveries
         }}>
             {children}
         </AuthContext.Provider>
