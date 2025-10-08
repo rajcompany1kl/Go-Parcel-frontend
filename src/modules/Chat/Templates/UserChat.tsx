@@ -12,7 +12,7 @@ import type {
 } from '../usertypes';
 import ChatMessages from '../Components/ChatMessages';
 
-const SERVER = 'http://localhost:5000';
+const SERVER = 'http://localhost:8080';
 
 export default function UserChat() {
 

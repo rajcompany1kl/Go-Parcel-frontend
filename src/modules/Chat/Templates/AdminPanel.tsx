@@ -5,7 +5,7 @@ import type { ChatEndedPayload, ChatStartedPayload, Message, PendingUser, Receiv
 import ChatRoom from '../Components/ChatRoom';
 import useAuth from '../../../shared/hooks/useAuth';
 
-const SERVER = 'http://localhost:5000';
+const SERVER = 'http://localhost:8080';
 
 export default function AdminPanel() {
    const { user, role } = useAuth();

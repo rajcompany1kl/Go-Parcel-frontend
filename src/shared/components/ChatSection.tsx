@@ -89,7 +89,7 @@ export default function ChatSection() {
 
     try {
       const res = await axios.post<{ answer?: string; suggestions?: { question: string }[] }>(
-        'http://localhost:5000/api/faq/query',
+        'http://localhost:8080/api/faq/query',
         { q }
       );
 
