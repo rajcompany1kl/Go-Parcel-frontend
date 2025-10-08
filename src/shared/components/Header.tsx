@@ -5,12 +5,18 @@ import { useNavigate } from 'react-router';
 import ContextMenu, { ContextMenuItemType, type ContextMenuType } from './ui/ContextMenu';
 import ContextMenuItems from '../constants/ContextMenuData';
 import type { AdminUserAccount } from '../types';
+import { useMap } from '../hooks/useMap';
+import HomeFactory from '../../modules/Home/factory';
+import useService from '../hooks/useServices';
 
 const Header = () => {
-  const { user, logout } = useAuth();
+  const { role, user, logout, adminDeliveries } = useAuth();
+  const { setOrigin, setDestination } = useMap()
   const navigate = useNavigate();
+  const services = useService()
 
-  const [ profileContext, setProfileContext ] = useState<ContextMenuType[]>([])
+  const [profileContext, setProfileContext] = useState<ContextMenuType[]>([])
+  const [deliveriesContextMenu, setDeliveriesContextMenu] = useState<ContextMenuType[]>([])
 
   function createProfileContextMenuItem(user: AdminUserAccount): ContextMenuType {
     return {
@@ -21,17 +27,30 @@ const Header = () => {
     }
   }
 
+  async function createAdminDeliveriesMenu() {
+    if(user) {
+      const response = await services.home.getAllDeliveries(user.id)
+      const deliveryMenu = HomeFactory.createAdminDeliveriesContextMenuItems(
+        response.rides,
+        (address: string) => {
+          console.log("Start Adress:  ",address)
+          setOrigin(address)},
+        (address: string) => setDestination(address)
+      )
+      console.log(deliveryMenu)
+      setDeliveriesContextMenu(deliveryMenu)
+    }
+  }
+
   useEffect(() => {
     let profileMenuItems: ContextMenuType[] = ContextMenuItems.profile(navigate, logout)
-    
     if (user) {
       const userProfileContextMenuItem = createProfileContextMenuItem(user)
       profileMenuItems.unshift(userProfileContextMenuItem)
     }
-
+    if (role === 'admin') createAdminDeliveriesMenu()
     setProfileContext(profileMenuItems)
   }, [user]);
-  const rides = ContextMenuItems.rides()
 
 
   return (
@@ -40,7 +59,7 @@ const Header = () => {
         <span className="text-white text-2xl font-medium">Commute</span>
       </div>
       <div className="w-fit h-full flex justify-end items-center gap-x-5">
-        <ContextMenu items={rides}>
+        <ContextMenu items={deliveriesContextMenu}>
           <div className="w-12 h-12 rounded-lg hover:bg-neutral-800 hover:cursor-pointer flex justify-center items-center">
             <Ride className="w-8 h-8 fill-white" />
           </div>
