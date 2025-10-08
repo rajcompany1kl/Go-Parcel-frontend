@@ -8,7 +8,7 @@ import HomeFactory from "../../modules/Home/factory";
 import { useMap } from "../hooks/useMap";
 import { io, Socket } from "socket.io-client";
 
-const SERVER = 'http://localhost:5000';
+const SERVER = 'http://localhost:8080';
 
 
 export const default_values = {
@@ -127,8 +127,10 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     async function fetchDelivery(trackingId: string, navigate: any) {
         localStorage.setItem('role', role)
         const response = await services.home.getDeliveryDetails(trackingId)
-        if (response.rides) {
-            const deliveryInformation: Ride = HomeFactory.createRideFromMongoDBResponse(response.rides)
+        console.log(response.ride)
+        if (response.ride) {
+            console.log(response.ride.adminId)
+            const deliveryInformation: Ride = HomeFactory.createRideFromMongoDBResponse(response.ride)
             setDelivery(deliveryInformation)
             localStorage.setItem('delivery',JSON.stringify(deliveryInformation))
             setOrigin(deliveryInformation.leg.start_address)
