@@ -1,55 +1,37 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Person, Ride } from './ui/Icons';
 import useAuth from '../hooks/useAuth';
 import { useNavigate } from 'react-router';
 import ContextMenu, { ContextMenuItemType, type ContextMenuType } from './ui/ContextMenu';
+import ContextMenuItems from '../constants/ContextMenuData';
+import type { AdminUserAccount } from '../types';
 
 const Header = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (user) {
-      console.log(user);
-    }
-  }, [user]);
+  const [ profileContext, setProfileContext ] = useState<ContextMenuType[]>([])
 
-  const menuItems: ContextMenuType[] = user ? [
-    {
+  function createProfileContextMenuItem(user: AdminUserAccount): ContextMenuType {
+    return {
       key: 'profileName',
       label: `${user.firstName} ${user.lastName}`,
       type: ContextMenuItemType.PROFILE,
-      avatar: {
-        firstName: user.firstName,
-        lastName: user.lastName,
-      }
-    },
-    {
-      key: 'separator',
-      label: '',
-      type: ContextMenuItemType.SEPARATOR,
-    },
-    {
-      key: 'logout',
-      label: 'Logout',
-      action: () => logout((path: string) => navigate(path)),
-      type: ContextMenuItemType.ITEM,
-    },
-  ] : [];
+      avatar: { firstName: user.firstName, lastName: user.lastName }
+    }
+  }
 
-const rides = [
-  { id: 1, from: 'Airport', to: 'Downtown', time: '10:30 AM' },
-  { id: 2, from: 'City Center', to: 'Station', time: '2:15 PM' },
-  { id: 3, from: 'Mall', to: 'Home', time: '7:00 PM' },
-];
+  useEffect(() => {
+    let profileMenuItems: ContextMenuType[] = ContextMenuItems.profile(navigate, logout)
+    
+    if (user) {
+      const userProfileContextMenuItem = createProfileContextMenuItem(user)
+      profileMenuItems.unshift(userProfileContextMenuItem)
+    }
 
-
-  const rideMenuItems: ContextMenuType[] = rides.map((ride) => ({
-  key: ride.id.toString(),
-  label: `${ride.from} → ${ride.to} (${ride.time})`,
-  type: ContextMenuItemType.ITEM,
-  action: () => console.log(`Open ride ${ride.id}`),
-}));
+    setProfileContext(profileMenuItems)
+  }, [user]);
+  const rides = ContextMenuItems.rides()
 
 
   return (
@@ -57,21 +39,19 @@ const rides = [
       <div className="flex-1">
         <span className="text-white text-2xl font-medium">Commute</span>
       </div>
-     <div className="w-fit h-full flex justify-end items-center gap-x-5">
-  {/* Rides menu */}
-  <ContextMenu items={rideMenuItems}>
-    <div className="w-12 h-12 rounded-lg hover:bg-neutral-800 hover:cursor-pointer flex justify-center items-center">
-      <Ride className="w-8 h-8 fill-white" />
-    </div>
-  </ContextMenu>
+      <div className="w-fit h-full flex justify-end items-center gap-x-5">
+        <ContextMenu items={rides}>
+          <div className="w-12 h-12 rounded-lg hover:bg-neutral-800 hover:cursor-pointer flex justify-center items-center">
+            <Ride className="w-8 h-8 fill-white" />
+          </div>
+        </ContextMenu>
 
-  {/* User menu */}
-  <ContextMenu items={menuItems}>
-    <div className="w-12 h-12 rounded-lg hover:bg-neutral-800 hover:cursor-pointer flex justify-center items-center">
-      <Person className="w-8 h-8 fill-white" />
-    </div>
-  </ContextMenu>
-</div>
+        <ContextMenu items={profileContext}>
+          <div className="w-12 h-12 rounded-lg hover:bg-neutral-800 hover:cursor-pointer flex justify-center items-center">
+            <Person className="w-8 h-8 fill-white" />
+          </div>
+        </ContextMenu>
+      </div>
 
     </div>
   );
