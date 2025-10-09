@@ -4,8 +4,23 @@ import 'leaflet/dist/leaflet.css';
 import { useMap } from '../../../shared/hooks/useMap';
 import RouteController from './RouteController';
 import DeliverySimulation from './DeliverySimulation';
+import useAuth from '../../../shared/hooks/useAuth'
 
 const Map: React.FC = () => {
+    const { delivery } = useAuth()
+   
+   useEffect(() => {
+  console.log("useEffect triggered. Current delivery:", delivery);
+  if (delivery) {
+    console.log("✅ Delivery available:", delivery);
+  } else {
+    console.log("⏳ Still waiting for delivery to be set...");
+  }
+}, [delivery]);
+    //    const { latitude, longitude } = pos.coords;
+    //  marker = L.marker([latitude, longitude]).addTo(map);
+   //  map.setView([latitude, longitude], map.getZoom());
+
     const mapContainerRef = useRef<HTMLDivElement>(null);
     const mapInstanceRef = useRef<L.Map | null>(null);
     const { setMapInstance, setOrigin, setDestination } = useMap();
@@ -35,7 +50,7 @@ const Map: React.FC = () => {
             {mapInstanceRef.current && (
                 <React.Fragment>
                     <RouteController onRouteFound={setRouteCoordinates} />
-                    <DeliverySimulation routeCoordinates={routeCoordinates} />
+                   {/* <DeliverySimulation routeCoordinates={routeCoordinates} /> */}
                 </React.Fragment>
             )}
         </div>
