@@ -11,7 +11,7 @@ interface RouteControllerProps {
 }
 
 const RouteController: React.FC<RouteControllerProps> = ({ onRouteFound }) => {
-    const { mapInstance, origin, destination, setRouteInfo, geocodeAddress } = useMap();
+    const { mapInstance, origin, destination, setRouteInfo, geocodeAddress, originCoords, destinationCoords } = useMap();
     const services = useService();
     const routingControlRef = useRef<L.Routing.Control | null>(null);
     const pickupMarkerRef = useRef<L.Marker | null>(null);
@@ -25,10 +25,6 @@ const RouteController: React.FC<RouteControllerProps> = ({ onRouteFound }) => {
             if (dropMarkerRef.current) mapInstance.removeLayer(dropMarkerRef.current);
             if (routingControlRef.current) mapInstance.removeControl(routingControlRef.current);
             onRouteFound([]);
-
-            const originCoords = origin ? await geocodeAddress(origin) : null;
-            if (origin) await new Promise(resolve => setTimeout(resolve, 1000));
-            const destinationCoords = destination ? await geocodeAddress(destination) : null;
 
             const waypoints: L.LatLng[] = [];
             if (originCoords) {
@@ -63,7 +59,7 @@ const RouteController: React.FC<RouteControllerProps> = ({ onRouteFound }) => {
         };
 
         updateRoute();
-    }, [mapInstance, origin, destination, geocodeAddress, setRouteInfo, onRouteFound]);
+    }, [mapInstance, originCoords, destinationCoords, geocodeAddress, setRouteInfo, onRouteFound]);
 
     return null;
 };

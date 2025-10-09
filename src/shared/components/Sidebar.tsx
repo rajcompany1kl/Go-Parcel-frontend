@@ -18,7 +18,7 @@ const Sidebar: React.FC = () => {
   const [routeData, setRouteData] = useState<{ distance: string, duration: string } | null>(null)
   const [loading, setLoading] = useState<boolean>(false) 
 
-  const { setOrigin, setDestination, origin, destination, routeInfo, geocodeAddress } = useMap()
+  const { setOrigin, setDestination, origin, destination, routeInfo, geocodeAddress, setOriginCoords, setDestinationCoords } = useMap()
   const { role, user } = useAuth()
   const services = useService()
 
@@ -31,9 +31,9 @@ const Sidebar: React.FC = () => {
     else setDestinationInput(value);
   };
 
-  const handleSelect = (value: string) => {
-    if (activeField === "origin") setOriginInput(value);
-    else setDestinationInput(value);
+  const handleSelect = (place: { lat: number, lng: number, address: string }) => {
+    if (activeField === "origin") setOriginCoords([place.lat,place.lng])
+    else setDestinationCoords([place.lat,place.lng])
   };
 
   const handleFindRoute = () => {
@@ -137,13 +137,13 @@ const Sidebar: React.FC = () => {
           )}
           {activeField && suggestions.length > 0 && !isLoading && (
             <ul className="absolute w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 z-10 max-h-60 overflow-y-auto">
-              {suggestions.map((s, i) => (
+              {suggestions.map((place, i) => (
                 <li 
                   key={i}
-                  onClick={() => handleSelect(s)}
+                  onClick={() => handleSelect(place)}
                   className="px-4 py-2.5 cursor-pointer hover:bg-blue-50 text-gray-700 transition-colors"
                 >
-                  {s}
+                  {place.address}
                 </li>
               ))}
             </ul>
