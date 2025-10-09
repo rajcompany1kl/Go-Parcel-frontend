@@ -85,7 +85,7 @@ export const createRideFromMongoDBResponse = (dto: any): Ride => {
     };
 };
 
-export const createAdminDeliveriesContextMenuItems = (deliveries: Ride[], setOrigin: any, setDestination: any): ContextMenuType[] => {
+export const createAdminDeliveriesContextMenuItems = (deliveries: Ride[], setOriginCoords: any, setDestinationCoords: any, setDelivery: (delivery: Ride) => void): ContextMenuType[] => {
     const menu: ContextMenuType[] = []
     for(let delivery of deliveries) {
         if(delivery.leg.start_address !== '' && delivery.leg.end_address !== '') {
@@ -94,8 +94,9 @@ export const createAdminDeliveriesContextMenuItems = (deliveries: Ride[], setOri
                 label: `${delivery.leg.start_address.split(',')[0]} - ${delivery.leg.end_address.split(',')[0]}`, 
                 type: ContextMenuItemType.ITEM, 
                 action: () => {
-                    setOrigin(delivery.leg.start_address)
-                    setDestination(delivery.leg.end_address)
+                    setOriginCoords([delivery.leg.start_location.lat,delivery.leg.start_location.lng])
+                    setDestinationCoords([delivery.leg.end_location.lat,delivery.leg.end_location.lng])
+                    setDelivery(delivery)
                 }
             }) 
         }
