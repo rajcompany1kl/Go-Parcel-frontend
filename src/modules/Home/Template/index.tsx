@@ -1,12 +1,13 @@
-import { useEffect, useMemo } from "react"
+import { useEffect } from "react"
 import DashboardLayout from "../../../app/layout/DashboardLayout"
 import useAuth from "../../../shared/hooks/useAuth"
 import Map from "../Components/Map"
 import useService from "../../../shared/hooks/useServices"
-import { io } from "socket.io-client";
+import useSocket from "../../../shared/hooks/useSocket"
 
 const HomeTemplate = () => {
   const { setAdminDeliveries, user, role } = useAuth()
+  const { socket } = useSocket()
   const services = useService()
 
   async function fetchAdminDeliveries() {
@@ -16,13 +17,6 @@ const HomeTemplate = () => {
         setAdminDeliveries(response.rides)}
     }
   }
-
-  const socket = useMemo(() => {
-    if (role === "driver") {
-      return io("http://localhost:8080", { transports: ["websocket"] });
-    }
-    return null;
-  }, [role]);
 
   useEffect(()=>{
     if(role == 'admin') fetchAdminDeliveries()
