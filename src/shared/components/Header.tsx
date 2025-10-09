@@ -57,8 +57,12 @@ const Header = () => {
     console.log("hello");
     // if (socket) {
       socket?.on('driver:location',({driverId, lat, lng}: {driverId: string, lat: number, lng: number}) => {
-        console.log(`Setting latitude longitude through socket ${driverId}, ${lat}, ${lng}` )
+        console.log(`Setting latitude longitude fff through socket ${driverId}, ${lat}, ${lng}` )
+        console.log("Current delivery in context", delivery)
+        console.log("Current delivery driverId", delivery?.driverId)
+        console.log("Received driverId", driverId)
         if(delivery?.driverId === driverId) {
+          console.log("Updating delivery location in context")
           setDelivery((prev) => {
             const updatedDelivery = {...prev, lastDriverLocation: {lat: lat, lng: lng}}
             return updatedDelivery
@@ -66,7 +70,7 @@ const Header = () => {
         }
       })
     // }
-  }, [socket])
+  }, [delivery, socket])
 
 
   return (

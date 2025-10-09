@@ -20,15 +20,32 @@ const Map: React.FC<Props> = ({ socket }) => {
 
     const mapContainerRef = useRef<HTMLDivElement>(null);
     const mapInstanceRef = useRef<L.Map | null>(null);
+    const driverMarkerRef = useRef<L.Marker | null>(null);
     const { setMapInstance, setOrigin, setDestination } = useMap();
     const [_, setRouteCoordinates] = useState<L.LatLng[]>([]);
 
     function setDriverLocation(map: L.Map) {
         if (delivery) {
+            
             const { lat, lng } = delivery.lastDriverLocation
-            console.log([lat, lng])
-            map.setView([lat, lng], map.getZoom());
-            L.marker([lat, lng]).addTo(map);
+             const newLatLng: L.LatLngTuple = [lat, lng];
+             console.log(newLatLng);
+             
+        if (driverMarkerRef.current) {
+           
+            driverMarkerRef.current.setLatLng(newLatLng);
+        } else {
+           
+            const newMarker = L.marker(newLatLng);
+            newMarker.addTo(map);
+            
+          
+            driverMarkerRef.current = newMarker;
+        }
+
+       
+      //  map.setView(newLatLng, map.getZoom());
+            
         }
     }
     ////////////////////
@@ -93,7 +110,7 @@ const Map: React.FC<Props> = ({ socket }) => {
             const map = L.map(mapContainerRef.current, { center: [24.5854, 73.7125], zoom: 13 });
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
             mapInstanceRef.current = map;
-            setDriverLocation(map)
+            
             setMapInstance(map);
         }
 
@@ -106,7 +123,14 @@ const Map: React.FC<Props> = ({ socket }) => {
                 setDestination("")
             }
         };
-    }, [setMapInstance, delivery]);
+    }, [setMapInstance]);
+    useEffect(() => {
+        if (mapInstanceRef.current) {
+            
+                setDriverLocation(mapInstanceRef.current);
+            
+        }
+    }, [delivery]);
 
     return (
         <div id="home-map" ref={mapContainerRef} className="w-full mx-auto h-full rounded-2xl z-0">
