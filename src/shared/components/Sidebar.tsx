@@ -7,6 +7,7 @@ import DeliveryTrackingDetails from "../../modules/Home/Components/DeliveryTrack
 import HomeFactory from "../../modules/Home/factory";
 import useService from "../hooks/useServices";
 import { LocationPinIcon, SpinnerIcon } from "./ui/Icons";
+import DriverSidebar from "../../modules/Home/Components/DriverSidebar";
 
 const Sidebar: React.FC = () => {
   type FieldType = "origin" | "destination";
@@ -87,7 +88,8 @@ const Sidebar: React.FC = () => {
     }
   },[routeInfo])
 
-  if(role === 'user') return <DeliveryTrackingDetails />
+  if (role === 'user') return <DeliveryTrackingDetails />;
+  if (role === 'driver') return <DriverSidebar />;
 
   return (
     <div className="w-96 bg-white shadow-2xl rounded-2xl p-6 font-sans flex flex-col h-full">
