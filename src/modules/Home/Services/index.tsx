@@ -64,5 +64,14 @@ async function getAllDeliveries(
     }
 }
 
-const HomeServices = { getCoordinates, placesAutocompletion, createDelivery, getDeliveryDetails, getAddressUsingCoords, getAllDeliveries }
+async function getAvailableDrivers() {
+    try {
+        const { data } = await http.get('/DriverUser/availableDrivers')
+        return data
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+const HomeServices = { getCoordinates, placesAutocompletion, createDelivery, getDeliveryDetails, getAddressUsingCoords, getAllDeliveries, getAvailableDrivers }
 export default HomeServices

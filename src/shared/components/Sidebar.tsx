@@ -8,18 +8,21 @@ import HomeFactory from "../../modules/Home/factory";
 import useService from "../hooks/useServices";
 import { LocationPinIcon, SpinnerIcon } from "./ui/Icons";
 import DriverSidebar from "../../modules/Home/Components/DriverSidebar";
+import type { DriverUserAccount } from "../types";
 
 const Sidebar: React.FC<{ 
   isSidebarOpen: boolean, 
   setIsSidebarOpen: Dispatch<SetStateAction<boolean>> 
 }> = ({ isSidebarOpen, setIsSidebarOpen }) => {
-  type FieldType = "origin" | "destination";
+  type FieldType = "origin" | "destination" | "drivers";
 
   const [originInput, setOriginInput] = useState("");
   const [destinationInput, setDestinationInput] = useState("");
-  const [activeField, setActiveField] = useState<FieldType | null>(null);
+  const [activeField, setActiveField] = useState<FieldType | null>('origin');
   const [routeData, setRouteData] = useState<{ distance: string, duration: string } | null>(null)
   const [loading, setLoading] = useState<boolean>(false) 
+  const [availableDrivers, setAvailableDrivers] = useState<DriverUserAccount[]>([])
+  const [selectedDriver, setSelectedDriver] = useState<DriverUserAccount | null>(null)
 
   const { origin, destination, routeInfo, setOriginCoords, setDestinationCoords, originCoords, destinationCoords } = useMap()
   const { role, user } = useAuth()
@@ -36,7 +39,7 @@ const Sidebar: React.FC<{
 
   const handleSelect = (place: { lat: number, lng: number, address: string }) => {
     if (activeField === "origin") setOriginCoords([place.lat,place.lng])
-    else setDestinationCoords([place.lat,place.lng])
+    else if(activeField === 'destination') setDestinationCoords([place.lat,place.lng])
   };
 
   async function createDelivery() {
@@ -62,12 +65,18 @@ const Sidebar: React.FC<{
     }
   }
 
+  async function fetchAvailableDrivers() {
+    const response = await services.home.getAvailableDrivers()
+    if(response.data) setAvailableDrivers(response.data as DriverUserAccount[])
+  }
+
   useEffect(() => {
     if(originCoords && destinationCoords && routeInfo && role !== 'user') {
       const { distance } = formatRouteData(routeInfo?.distance, routeInfo.duration)
       const duration = getEstimatedDeliveryDate(routeInfo.duration)
       setRouteData({ distance, duration })
     }
+    if(role === 'admin') fetchAvailableDrivers()
   },[routeInfo])
 
   if (role === 'user') return <DeliveryTrackingDetails />;
@@ -109,6 +118,11 @@ const Sidebar: React.FC<{
             />
           </div>
         </div>
+
+        <div className="flex justify-start items-center space-x-4">
+          {selectedDriver ? <p className="text-xl text-gray-600 tracking-wide font-bold">Selected Driver</p> : <button className="w-fit text-white font-medium py-1.5 px-2 rounded-lg bg-neutral-800" onClick={() => setActiveField('drivers')}>Select Driver</button>}
+          {selectedDriver && <p className="text-xl text-gray-600 tracking-wide font-light">{selectedDriver.firstName} {selectedDriver.lastName}</p>}
+        </div>
         
         <div className="relative">
           {isLoading && (
@@ -119,13 +133,24 @@ const Sidebar: React.FC<{
           )}
           {activeField && suggestions.length > 0 && !isLoading && (
             <ul className="absolute w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 z-10 max-h-60 overflow-y-auto">
-              {suggestions.map((place, i) => (
+              {activeField !== 'drivers' ? suggestions.map((place, i) => (
                 <li 
                   key={i}
                   onClick={() => handleSelect(place)}
                   className="px-4 py-2.5 cursor-pointer hover:bg-blue-50 text-gray-700 transition-colors"
                 >
                   {place.address}
+                </li>
+              )) : availableDrivers.map((driver,i) => (
+                <li 
+                  key={i}
+                  onClick={() => {
+                    setSelectedDriver(driver)
+                    setActiveField(null)
+                  }}
+                  className="px-4 py-2.5 cursor-pointer hover:bg-blue-50 text-gray-700 transition-colors"
+                >
+                  {driver.firstName} {driver.lastName}
                 </li>
               ))}
             </ul>
