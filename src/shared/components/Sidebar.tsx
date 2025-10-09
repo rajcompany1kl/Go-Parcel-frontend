@@ -18,7 +18,7 @@ const Sidebar: React.FC = () => {
   const [routeData, setRouteData] = useState<{ distance: string, duration: string } | null>(null)
   const [loading, setLoading] = useState<boolean>(false) 
 
-  const { setOrigin, setDestination, origin, destination, routeInfo, geocodeAddress } = useMap()
+  const { origin, destination, routeInfo, setOriginCoords, setDestinationCoords, originCoords, destinationCoords } = useMap()
   const { role, user } = useAuth()
   const services = useService()
 
@@ -31,27 +31,14 @@ const Sidebar: React.FC = () => {
     else setDestinationInput(value);
   };
 
-  const handleSelect = (value: string) => {
-    if (activeField === "origin") setOriginInput(value);
-    else setDestinationInput(value);
+  const handleSelect = (place: { lat: number, lng: number, address: string }) => {
+    if (activeField === "origin") setOriginCoords([place.lat,place.lng])
+    else setDestinationCoords([place.lat,place.lng])
   };
 
-  const handleFindRoute = () => {
+  async function createDelivery() {
     setLoading(true)
-    if(routeData) setRouteData(null)
-    if (originInput.trim()) {
-      setOrigin(originInput.trim());
-    }
-    if (destinationInput.trim()) {
-      setDestination(destinationInput.trim());
-    }
-  };
-
-  async function createDelivery(
-    originCoords: [number, number], 
-    destinationCoords: [number, number]
-  ) {
-    if(routeInfo) {
+    if(routeInfo && originCoords && destinationCoords) {
       const deliveryPayload = HomeFactory.createRide({
             adminId: user?.id as string,
             distance: routeInfo.distance.toString(),
@@ -71,20 +58,11 @@ const Sidebar: React.FC = () => {
     }
   }
 
-  const getCoordinates = async() => {
-    const originCoordinates = await geocodeAddress(origin)
-    const destinationCoordinates = await geocodeAddress(destination)
-    if(originCoordinates && destinationCoordinates) {
-      createDelivery(originCoordinates, destinationCoordinates)
-    }
-  }
-
   useEffect(() => {
-    if(origin && destination && routeInfo && role !== 'user') {
+    if(originCoords && destinationCoords && routeInfo && role !== 'user') {
       const { distance } = formatRouteData(routeInfo?.distance, routeInfo.duration)
       const duration = getEstimatedDeliveryDate(routeInfo.duration)
       setRouteData({ distance, duration })
-      getCoordinates();
     }
   },[routeInfo])
 
@@ -137,13 +115,13 @@ const Sidebar: React.FC = () => {
           )}
           {activeField && suggestions.length > 0 && !isLoading && (
             <ul className="absolute w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 z-10 max-h-60 overflow-y-auto">
-              {suggestions.map((s, i) => (
+              {suggestions.map((place, i) => (
                 <li 
                   key={i}
-                  onClick={() => handleSelect(s)}
+                  onClick={() => handleSelect(place)}
                   className="px-4 py-2.5 cursor-pointer hover:bg-blue-50 text-gray-700 transition-colors"
                 >
-                  {s}
+                  {place.address}
                 </li>
               ))}
             </ul>
@@ -159,7 +137,7 @@ const Sidebar: React.FC = () => {
       </div>}
       
       <div className="mt-6">
-        <button onClick={handleFindRoute} className="w-full text-white font-bold py-3 px-4 rounded-lg bg-neutral-800 transition-all duration-300 transform hover:ring-2 ring-neutral-800 ring-offset-2">
+        <button onClick={createDelivery} className="w-full text-white font-bold py-3 px-4 rounded-lg bg-neutral-800 transition-all duration-300 transform hover:ring-2 ring-neutral-800 ring-offset-2">
           {!loading ? 'Create Delivery' : 'Creating delivery...'}
         </button>
       </div>

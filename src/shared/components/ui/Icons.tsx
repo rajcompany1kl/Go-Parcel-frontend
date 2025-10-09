@@ -70,7 +70,7 @@ export const SpinnerIcon = () => (
 
 
 // ./ui/Icons.tsx
-export const Ride = (props: React.SVGProps<SVGSVGElement>) => (
+export const RideIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 24 24" {...props}>
     <path
       fill="#ffffff"
