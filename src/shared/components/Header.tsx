@@ -1,17 +1,17 @@
 import { useEffect, useState } from 'react';
-import { Person, Ride } from './ui/Icons';
+import { Person, RideIcon } from './ui/Icons';
 import useAuth from '../hooks/useAuth';
 import { useNavigate } from 'react-router';
 import ContextMenu, { ContextMenuItemType, type ContextMenuType } from './ui/ContextMenu';
 import ContextMenuItems from '../constants/ContextMenuData';
-import type { AdminUserAccount } from '../types';
+import type { AdminUserAccount, Ride } from '../types';
 import { useMap } from '../hooks/useMap';
 import HomeFactory from '../../modules/Home/factory';
 import useService from '../hooks/useServices';
 
 const Header = () => {
-  const { role, user, logout, adminDeliveries } = useAuth();
-  const { setOrigin, setDestination } = useMap()
+  const { role, user, logout, setDelivery } = useAuth();
+  const { setOriginCoords, setDestinationCoords } = useMap()
   const navigate = useNavigate();
   const services = useService()
 
@@ -32,12 +32,10 @@ const Header = () => {
       const response = await services.home.getAllDeliveries(user.id)
       const deliveryMenu = HomeFactory.createAdminDeliveriesContextMenuItems(
         response.rides,
-        (address: string) => {
-          console.log("Start Adress:  ",address)
-          setOrigin(address)},
-        (address: string) => setDestination(address)
+        (coordinates: [number,number]) => setOriginCoords(coordinates),
+        (coordinates: [number,number]) => setDestinationCoords(coordinates),
+        (delivery: Ride) => setDelivery(delivery)
       )
-      console.log(deliveryMenu)
       setDeliveriesContextMenu(deliveryMenu)
     }
   }
@@ -61,7 +59,7 @@ const Header = () => {
       <div className="w-fit h-full flex justify-end items-center gap-x-5">
         <ContextMenu items={deliveriesContextMenu}>
           <div className="w-12 h-12 rounded-lg hover:bg-neutral-800 hover:cursor-pointer flex justify-center items-center">
-            <Ride className="w-8 h-8 fill-white" />
+            <RideIcon className="w-8 h-8 fill-white" />
           </div>
         </ContextMenu>
 
