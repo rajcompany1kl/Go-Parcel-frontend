@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { useSuggestions } from "../hooks/useSuggestions";
 import { useMap } from "../hooks/useMap";
 import { formatRouteData, getEstimatedDeliveryDate } from "../Utils";
@@ -9,7 +9,10 @@ import useService from "../hooks/useServices";
 import { LocationPinIcon, SpinnerIcon } from "./ui/Icons";
 import DriverSidebar from "../../modules/Home/Components/DriverSidebar";
 
-const Sidebar: React.FC = () => {
+const Sidebar: React.FC<{ 
+  isSidebarOpen: boolean, 
+  setIsSidebarOpen: Dispatch<SetStateAction<boolean>> 
+}> = ({ isSidebarOpen, setIsSidebarOpen }) => {
   type FieldType = "origin" | "destination";
 
   const [originInput, setOriginInput] = useState("");
@@ -65,6 +68,7 @@ const Sidebar: React.FC = () => {
       setLoading(false)
       setDestinationInput("")
       setOriginInput("")
+      if(isSidebarOpen) setIsSidebarOpen(false)
       if(response.data) {
         console.log(response.data)
       }
