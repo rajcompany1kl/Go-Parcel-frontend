@@ -4,7 +4,6 @@ import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
 import 'leaflet-routing-machine';
 import 'leaflet-control-geocoder';
 import { useMap } from '../../../shared/hooks/useMap';
-import useService from '../../../shared/hooks/useServices';
 
 interface RouteControllerProps {
     onRouteFound: (coordinates: L.LatLng[]) => void;
@@ -12,7 +11,6 @@ interface RouteControllerProps {
 
 const RouteController: React.FC<RouteControllerProps> = ({ onRouteFound }) => {
     const { mapInstance, origin, destination, setRouteInfo, geocodeAddress, originCoords, destinationCoords } = useMap();
-    const services = useService();
     const routingControlRef = useRef<L.Routing.Control | null>(null);
     const pickupMarkerRef = useRef<L.Marker | null>(null);
     const dropMarkerRef = useRef<L.Marker | null>(null);

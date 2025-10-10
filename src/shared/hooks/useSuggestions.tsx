@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import useService from './useServices';
 import { useDebounce } from './useDebounce';
 import { memoizeAsync } from '../Utils';
-import { useMap } from './useMap';
+import { useToaster } from './useToast';
 
 export function useSuggestions(searchTerm: string) {
   const [suggestions, setSuggestions] = useState<{
@@ -12,7 +12,8 @@ export function useSuggestions(searchTerm: string) {
   }[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const debouncedSearchTerm = useDebounce(searchTerm, 400);
-  const services = useService();
+  const toast = useToaster()
+  const services = useMemo(() => useService(toast.addToast), [toast.addToast])
 
   const fetchApi = useCallback(async (query: string) => {
     const response = await services.home.placesAutocompletion(query);

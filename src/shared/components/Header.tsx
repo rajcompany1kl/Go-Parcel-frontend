@@ -8,12 +8,14 @@ import type { AdminUserAccount, Ride } from '../types';
 import { useMap } from '../hooks/useMap';
 import HomeFactory from '../../modules/Home/factory';
 import useService from '../hooks/useServices';
+import { useToaster } from '../hooks/useToast';
 
 const Header = () => {
   const { role, user, logout, setDelivery } = useAuth();
   const { setOriginCoords, setDestinationCoords } = useMap()
   const navigate = useNavigate();
-  const services = useService()
+  const toast = useToaster()
+  const services = useService(toast.addToast)
 
   const [profileContext, setProfileContext] = useState<ContextMenuType[]>([])
   const [deliveriesContextMenu, setDeliveriesContextMenu] = useState<ContextMenuType[]>([])

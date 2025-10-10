@@ -10,6 +10,7 @@ import DriverSidebar from "../../modules/Home/Components/DriverSidebar";
 import type { DriverUserAccount } from "../types";
 import * as AuthFactory from '../../modules/Auth/factory'
 import HomeFactory from "../../modules/Home/factory";
+import { useToaster } from "../hooks/useToast";
 
 const Sidebar: React.FC<{ 
   isSidebarOpen: boolean, 
@@ -27,7 +28,8 @@ const Sidebar: React.FC<{
 
   const { origin, destination, routeInfo, setOriginCoords, setDestinationCoords, originCoords, destinationCoords } = useMap()
   const { role, user } = useAuth()
-  const services = useService()
+  const { addToast } = useToaster()
+  const services = useService(addToast)
 
   const activeSearchTerm = activeField === "origin" ? originInput : destinationInput;
   const { suggestions, isLoading } = useSuggestions(activeSearchTerm);
@@ -44,8 +46,10 @@ const Sidebar: React.FC<{
   };
 
   async function createDelivery() {
+    if(!selectedDriver && !originInput && !destinationInput) {
+      addToast('Origin, Destination and Driver Selection is necessary to create a delivery!','error',2000)
+    }
     setLoading(true)
-    console.log(selectedDriver)
     if(selectedDriver) {
       const driver = AuthFactory.createDriverUserAccount(selectedDriver)
       if(routeInfo && originCoords && destinationCoords) {
@@ -64,9 +68,7 @@ const Sidebar: React.FC<{
         setDestinationInput("")
         setOriginInput("")
         if(isSidebarOpen) setIsSidebarOpen(false)
-        if(response.data) {
-          console.log(response.data)
-        }
+        if(response.data) addToast("Delivery created successfully!")
       }
     }
   }
