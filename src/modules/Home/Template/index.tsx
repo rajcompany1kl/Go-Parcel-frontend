@@ -3,11 +3,12 @@ import DashboardLayout from "../../../app/layout/DashboardLayout"
 import useAuth from "../../../shared/hooks/useAuth"
 import Map from "../Components/Map"
 import useService from "../../../shared/hooks/useServices"
-import HomeFactory from "../factory"
+import { useToaster } from "../../../shared/hooks/useToast"
 
 const HomeTemplate = () => {
   const { setAdminDeliveries, user, role } = useAuth()
-  const services = useService()
+  const toast = useToaster()
+  const services = useService(toast.addToast)
 
   async function fetchAdminDeliveries() {
     if(user) {

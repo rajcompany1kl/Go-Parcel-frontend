@@ -1,11 +1,13 @@
-import { createContext, useCallback, useState } from "react";
+import { createContext, useCallback, useMemo, useState } from "react";
 import type { ExtendedMapContextType, MapProviderProps, RouteInfo } from "../../modules/Home/types";
 import useService from "../hooks/useServices";
+import { useToaster } from "../hooks/useToast";
 
 export const MapContext = createContext<ExtendedMapContextType | undefined>(undefined);
 
 export const MapProvider: React.FC<MapProviderProps> = ({ children }) => {
-  const services = useService()
+  const toast = useToaster()
+  const services = useMemo(() => useService(toast.addToast), [toast.addToast])
 
   const [origin, setOrigin] = useState('');
   const [destination, setDestination] = useState('');

@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 import useAuth from '../../../shared/hooks/useAuth'
 import useService from '../../../shared/hooks/useServices';
 import type { Coordinates } from '../../../shared/types';
+import { useToaster } from '../../../shared/hooks/useToast';
 
 const DeliveryTrackingDetails = () => {
     const { delivery } = useAuth()
-    const services = useService()
+    const toast = useToaster()
+    const services = useService(toast.addToast)
  
     const [formattedDistance, setFormattedDistance] = useState<string>("")
     const [ lastDriverLocationAddress, setLastDriverLocationAddress ] = useState<string>("")
