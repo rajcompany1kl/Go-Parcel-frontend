@@ -4,11 +4,12 @@ import { useMap } from "../hooks/useMap";
 import { formatRouteData, getEstimatedDeliveryDate } from "../Utils";
 import useAuth from "../hooks/useAuth";
 import DeliveryTrackingDetails from "../../modules/Home/Components/DeliveryTrackingDetails";
-import HomeFactory from "../../modules/Home/factory";
 import useService from "../hooks/useServices";
 import { LocationPinIcon, SpinnerIcon } from "./ui/Icons";
 import DriverSidebar from "../../modules/Home/Components/DriverSidebar";
 import type { DriverUserAccount } from "../types";
+import * as AuthFactory from '../../modules/Auth/factory'
+import HomeFactory from "../../modules/Home/factory";
 
 const Sidebar: React.FC<{ 
   isSidebarOpen: boolean, 
@@ -21,8 +22,8 @@ const Sidebar: React.FC<{
   const [activeField, setActiveField] = useState<FieldType | null>('origin');
   const [routeData, setRouteData] = useState<{ distance: string, duration: string } | null>(null)
   const [loading, setLoading] = useState<boolean>(false) 
-  const [availableDrivers, setAvailableDrivers] = useState<DriverUserAccount[]>([])
-  const [selectedDriver, setSelectedDriver] = useState<DriverUserAccount | null>(null)
+  const [availableDrivers, setAvailableDrivers] = useState<AuthFactory.MongoDriverUserDocument[]>([])
+  const [selectedDriver, setSelectedDriver] = useState<AuthFactory.MongoDriverUserDocument | null>(null)
 
   const { origin, destination, routeInfo, setOriginCoords, setDestinationCoords, originCoords, destinationCoords } = useMap()
   const { role, user } = useAuth()
@@ -44,30 +45,35 @@ const Sidebar: React.FC<{
 
   async function createDelivery() {
     setLoading(true)
-    if(routeInfo && originCoords && destinationCoords) {
-      const deliveryPayload = HomeFactory.createRide({
-            adminId: user?.id as string,
-            distance: routeInfo.distance.toString(),
-            end_location: { lat: destinationCoords[0], lng: destinationCoords[1] },
-            start_location: { lat: originCoords[0], lng: originCoords[1] },
-            startAddress: originInput,
-            endAddress: destinationInput,
-            initialDriverLocation: { lat: originCoords[0], lng: originCoords[1] }
-          });
-      const response = await services.home.createDelivery(deliveryPayload)
-      setLoading(false)
-      setDestinationInput("")
-      setOriginInput("")
-      if(isSidebarOpen) setIsSidebarOpen(false)
-      if(response.data) {
-        console.log(response.data)
+    console.log(selectedDriver)
+    if(selectedDriver) {
+      const driver = AuthFactory.createDriverUserAccount(selectedDriver)
+      if(routeInfo && originCoords && destinationCoords) {
+        const deliveryPayload = HomeFactory.createRide({
+              adminId: user?.id as string,
+              driverId: driver?.id as string,
+              distance: routeInfo.distance.toString(),
+              end_location: { lat: destinationCoords[0], lng: destinationCoords[1] },
+              start_location: { lat: originCoords[0], lng: originCoords[1] },
+              startAddress: originInput,
+              endAddress: destinationInput,
+              initialDriverLocation: { lat: originCoords[0], lng: originCoords[1] }
+            });
+        const response = await services.home.createDelivery(deliveryPayload)
+        setLoading(false)
+        setDestinationInput("")
+        setOriginInput("")
+        if(isSidebarOpen) setIsSidebarOpen(false)
+        if(response.data) {
+          console.log(response.data)
+        }
       }
     }
   }
 
   async function fetchAvailableDrivers() {
     const response = await services.home.getAvailableDrivers()
-    if(response.data) setAvailableDrivers(response.data as DriverUserAccount[])
+    if(response.data) setAvailableDrivers(response.data as AuthFactory.MongoDriverUserDocument[])
   }
 
   useEffect(() => {

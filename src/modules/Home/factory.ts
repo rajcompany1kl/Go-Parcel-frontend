@@ -10,6 +10,7 @@ import type { CreateRideParams, Leg, Ride } from "../../shared/types";
  */
 export const createRide = ({
     adminId,
+    driverId,
     distance,
     startAddress,
     endAddress,
@@ -21,7 +22,7 @@ export const createRide = ({
 
     const newRide: Ride = {
         adminId,
-        driverId: '',
+        driverId,
         rideStartAt: creationTime,
         rideEndAt: null,
         isRideStarted: true,
@@ -45,6 +46,7 @@ export const createRide = ({
         },
     };
 
+    console.log(newRide)
     return newRide;
 };
 

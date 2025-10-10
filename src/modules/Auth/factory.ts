@@ -1,6 +1,6 @@
-import type { AdminUserAccount } from "../../shared/types";
+import type { AdminUserAccount, Coordinates, DriverRideStatus, DriverUserAccount } from "../../shared/types";
 
-interface MongoAdminUserDocument {
+export interface MongoAdminUserDocument {
     _id: string | { toString(): string }, // MongoDB ObjectId or string
     firstName: string,
     lastName: string,
@@ -10,13 +10,24 @@ interface MongoAdminUserDocument {
     [key: string]: any // Additional fields that might exist
 }
 
+export interface MongoDriverUserDocument {
+    _id: string | { toString(): string }, // MongoDB ObjectId or string
+    firstName: string,
+    lastName: string,
+    email: string,
+    phone: number,
+    password: string,
+    currentLoc: Coordinates,
+    status: DriverRideStatus
+    [key: string]: any // Additional fields that might exist
+}
+
 /**
  * Factory function to convert MongoDB document to AdminUserAccount
  * @param mongoDoc - The document returned from MongoDB
  * @returns AdminUserAccount object with proper id field
  */
 export function createAdminUserAccount(mongoDoc: MongoAdminUserDocument): AdminUserAccount {
-    console.log(mongoDoc)
     return {
         id: typeof mongoDoc._id === 'string' ? mongoDoc._id : mongoDoc._id.toString(),
         firstName: mongoDoc.firstName,
@@ -24,6 +35,19 @@ export function createAdminUserAccount(mongoDoc: MongoAdminUserDocument): AdminU
         email: mongoDoc.email,
         phone: mongoDoc.phone,
         password: mongoDoc.password
+    };
+}
+
+export function createDriverUserAccount(mongoDoc: MongoDriverUserDocument): DriverUserAccount {
+    return {
+        id: typeof mongoDoc._id === 'string' ? mongoDoc._id : mongoDoc._id.toString(),
+        firstName: mongoDoc.firstName,
+        lastName: mongoDoc.lastName,
+        email: mongoDoc.email,
+        phone: mongoDoc.phone,
+        password: mongoDoc.password,
+        currentLoc: mongoDoc.currentLoc,
+        status: mongoDoc.status
     };
 }
 
