@@ -23,7 +23,7 @@ const Map: React.FC<Props> = ({ socket }) => {
     const mapContainerRef = useRef<HTMLDivElement>(null);
     const mapInstanceRef = useRef<L.Map | null>(null);
     const driverMarkerRef = useRef<L.Marker | null>(null);
-    const { setMapInstance, setOrigin, setDestination } = useMap();
+    const { setMapInstance, setOrigin, setDestination, setDriverLoc } = useMap();
     const [_, setRouteCoordinates] = useState<L.LatLng[]>([]);
 
     function setDriverLocation(map: L.Map) {
@@ -34,10 +34,10 @@ const Map: React.FC<Props> = ({ socket }) => {
              console.log(newLatLng);
              
         if (driverMarkerRef.current) {
-           
+            setDriverLoc(newLatLng as [number, number]);
             driverMarkerRef.current.setLatLng(newLatLng);
         } else {
-           
+            setDriverLoc(newLatLng as [number, number]);
             const newMarker = L.marker(newLatLng,{icon: L.icon(DeliveryMarker)});
             newMarker.addTo(map);
             

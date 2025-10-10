@@ -19,6 +19,8 @@ export type MapContextType = {
   clearRoute: () => void;
   routeInfo: { distance: number; duration: number } | null;
   setRouteInfo: (info: { distance: number; duration: number } | null) => void;
+  driverLoc: [number, number] ;
+  setDriverLoc: Dispatch<SetStateAction<[number, number]>>;
 };
 
 export interface ExtendedMapContextType extends MapContextType {

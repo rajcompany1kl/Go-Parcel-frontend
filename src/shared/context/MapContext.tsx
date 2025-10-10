@@ -14,6 +14,7 @@ export const MapProvider: React.FC<MapProviderProps> = ({ children }) => {
   const [routeInfo, setRouteInfo] = useState<RouteInfo | null>(null);
   const [originCoords, setOriginCoords] = useState<[number, number] | null>(null);
   const [destinationCoords, setDestinationCoords] = useState<[number, number] | null>(null);
+  const [driverLoc, setDriverLoc] = useState<[number, number]>([0,0]);
 
   const [mapInstance, setMapInstance] = useState<L.Map | null>(null);
 
@@ -56,7 +57,8 @@ export const MapProvider: React.FC<MapProviderProps> = ({ children }) => {
       setRouteInfo,
       setMapInstance,
       clearRoute,
-      geocodeAddress
+      geocodeAddress,
+      driverLoc, setDriverLoc
     }}>
       {children}
     </MapContext.Provider>
