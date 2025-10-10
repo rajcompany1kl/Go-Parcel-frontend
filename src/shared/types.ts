@@ -58,6 +58,7 @@ export interface Coordinates {
 }
 export type CreateRideParams = {
     adminId: string;
+    driverId: string;
     distance: string;
     startAddress: string;
     endAddress: string;
