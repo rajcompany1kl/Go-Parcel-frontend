@@ -63,7 +63,7 @@ const Map: React.FC<Props> = ({ socket }) => {
             }
     
             if (!mapInstanceRef.current) return;
-    
+    console.log("mapInstanceRef.current is available");
             const map = mapInstanceRef.current;
             let marker: L.Marker | null = null;
     
@@ -79,6 +79,7 @@ const Map: React.FC<Props> = ({ socket }) => {
     
                     if (!marker) {
                         marker = L.marker([latitude, longitude]).addTo(map);
+                        console.log("Driver marker added to map at:", latitude, longitude);
                     } else {
                         marker.setLatLng([latitude, longitude]);
                     }
@@ -102,7 +103,7 @@ const Map: React.FC<Props> = ({ socket }) => {
                 navigator.geolocation.clearWatch(watchId);
             };
         }
-    }, [role, socket, user]);
+    }, [role, socket, user, mapInstanceRef.current]);
 
     /////////////////////
     useEffect(() => {
@@ -124,6 +125,7 @@ const Map: React.FC<Props> = ({ socket }) => {
             }
         };
     }, [setMapInstance]);
+
     useEffect(() => {
         if (mapInstanceRef.current) {
             

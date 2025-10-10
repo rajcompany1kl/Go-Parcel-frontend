@@ -8,6 +8,7 @@ import HomeFactory from "../../modules/Home/factory";
 import useService from "../hooks/useServices";
 import { LocationPinIcon, SpinnerIcon } from "./ui/Icons";
 import DriverSidebar from "../../modules/Home/Components/DriverSidebar";
+import axios from "axios";
 
 const Sidebar: React.FC<{ 
   isSidebarOpen: boolean, 
@@ -52,15 +53,23 @@ const Sidebar: React.FC<{
             initialDriverLocation: { lat: originCoords[0], lng: originCoords[1] }
           });
       const response = await services.home.createDelivery(deliveryPayload)
+      console.log("🟩 Full response:", response);
+         const response2 = await axios.post('http://localhost:8080/api/send-email', {
+         to: 'kodeyan9@gmail.com',
+         subject: 'New Delivery Created',
+         text: `A new delivery has been created from ${originInput} to ${destinationInput} with trackingId ${response.ride._id}.`
+      });
       setLoading(false)
       setDestinationInput("")
       setOriginInput("")
       if(isSidebarOpen) setIsSidebarOpen(false)
       if(response.data) {
-        console.log(response.data)
+        console.log("rider provider",response.data)
+      
+      console.log(" mail sent")
       }
     }
-  }
+  } 
 
   useEffect(() => {
     if(originCoords && destinationCoords && routeInfo && role !== 'user') {
