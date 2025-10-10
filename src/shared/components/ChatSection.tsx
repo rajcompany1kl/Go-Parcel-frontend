@@ -131,7 +131,7 @@ export default function ChatSection() {
       
       {open && (
         <div className="w-80 h-[28rem] bg-white shadow-2xl rounded-xl overflow-hidden flex flex-col transition-all border border-gray-200">
-          <div className="p-4 bg-purple-600 text-white flex justify-between items-center">
+          <div className="p-4 bg-black text-white flex justify-between items-center">
             <span className="font-semibold">💬 Help Chat</span>
             <button
               onClick={() => setOpen(false)}
@@ -166,7 +166,7 @@ export default function ChatSection() {
               <div className="text-gray-500 text-xs italic">Thinking...</div>
             )}
             {manual && (
-  <div className="text-xs text-purple-600 italic text-center flex items-center justify-center gap-2">
+  <div className="text-xs text-black italic text-center flex items-center justify-center gap-2">
     <span>You've asked quite a few questions. Connecting you to a human agent...</span>
     <span className="animate-pulse">⏳</span>
   </div>
@@ -182,13 +182,13 @@ export default function ChatSection() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask a question..."
-              className="flex-1 p-2 text-sm text-black border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-purple-200"
+              className="flex-1 p-2 text-sm text-black border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-black"
               disabled={manual}
             />
             <button
               type="submit"
               disabled={thinking || manual}
-              className="px-3 py-2 text-sm rounded-md bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50"
+              className="px-3 py-2 text-sm rounded-md bg-black text-white hover:bg-gray-700 disabled:opacity-50"
             >
               Send
             </button>
@@ -197,7 +197,7 @@ export default function ChatSection() {
           <div className="px-3 py-2 text-xs text-center bg-gray-50 border-t">
             <button
               onClick={onStart}
-              className="text-purple-600 hover:underline"
+              className="text-gray-700 hover:underline"
             >
               Not helpful? Talk to a human
             </button>
@@ -208,10 +208,10 @@ export default function ChatSection() {
       
       <button
         onClick={() => setOpen((o) => !o)}
-        className="w-14 h-14 rounded-full shadow-xl bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition-all"
+        className="w-14 h-14 rounded-full shadow-xl bg-black text-white flex items-center justify-center hover:bg-gray-700 transition-all"
         aria-label="Toggle Chat"
       >
-        {open ? '–' : '💬'}
+        {open ? '–' : '💬'} 
       </button>
     </div>
   );

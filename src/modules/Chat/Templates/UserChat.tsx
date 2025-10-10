@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
 import useAuth from '../../../shared/hooks/useAuth';
+import Header from '../../../shared/components/Header';
 
 import type {
   Message,
@@ -11,6 +12,7 @@ import type {
   EndChatPayload
 } from '../usertypes';
 import ChatMessages from '../Components/ChatMessages';
+
 
 const SERVER = 'http://localhost:8080';
 
@@ -87,6 +89,8 @@ export default function UserChat() {
   }
 
   return (
+    <>
+    <Header />
     <div className="flex flex-col max-w-[800px] mx-auto p-4 font-['Segoe_UI',sans-serif]">
       <h2 className="text-2xl font-semibold mb-2">
         Live Chat <span className="text-base text-gray-600">(You: {userId})</span>
@@ -151,5 +155,6 @@ export default function UserChat() {
         </div>
       )}
     </div>
+    </>
   );
 }

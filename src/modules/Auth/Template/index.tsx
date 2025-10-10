@@ -68,7 +68,7 @@ const AuthTemplate = () => {
               {role !== 'user' && (isLogin ? "Sign up" : "Login")}
             </button>
           </p>
-          <button onClick={() => navigate('/adminchat')}>Admin chat</button>
+         
         </div>
       </div>
     </div>

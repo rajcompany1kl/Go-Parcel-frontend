@@ -4,6 +4,7 @@ import PendingChats from '../Components/PendingChats';
 import type { ChatEndedPayload, ChatStartedPayload, Message, PendingUser, ReceiveMessagePayload } from '../types';
 import ChatRoom from '../Components/ChatRoom';
 import useAuth from '../../../shared/hooks/useAuth';
+import Header from '../../../shared/components/Header';
 
 const SERVER = 'http://localhost:8080';
 
@@ -89,6 +90,8 @@ export default function AdminPanel() {
     setText('');
   }
 return (
+  <>
+  <Header />
   <div style={{
     maxWidth: 900,
     margin: '0 auto',
@@ -131,6 +134,7 @@ return (
       />
     )}
   </div>
+  </>
 );
 ;
 } 
