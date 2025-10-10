@@ -1,6 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import useAuth from '../../../shared/hooks/useAuth';
 import type { Ride } from '../../../shared/types';
+import { useToaster } from '../../../shared/hooks/useToast';
+import useService from '../../../shared/hooks/useServices';
+import HomeFactory from '../factory';
+import { useMap } from '../../../shared/hooks/useMap';
 
 const AssignedDelivery: React.FC<{ delivery: Ride }> = ({ delivery }) => {
     return (
@@ -85,7 +89,26 @@ const NoDelivery: React.FC = () => {
 };
 
 const DriverSidebar: React.FC = () => {
-    const { delivery } = useAuth();
+    const { delivery, setDelivery, user } = useAuth();
+    const { setOriginCoords, setDestinationCoords } = useMap()
+    const toast = useToaster();
+    const services = useService(toast.addToast);
+
+    async function getAssignedDelivery() {
+        console.log("ytwtyegwauehfoqj -in--------------------------");
+        if(user) {
+            console.log("kabdddiiiiiiiii")
+            const response = await services.home.getDriverDelivery(user.id);
+            setDelivery(HomeFactory.createRideFromMongoDBResponse(response.ride))
+            setOriginCoords([response.ride.leg.start_location.lat, response.ride.leg.start_location.lng])
+            setDestinationCoords([response.ride.leg.end_location.lat, response.ride.leg.end_location.lng])
+            console.log("ytwtyegwauehfoqj",delivery);
+        }
+    }
+    useEffect(() => {
+        console.log("Delivery updatedrtrtrf:", delivery);
+        getAssignedDelivery()
+    }, [user]);
     return delivery ? <AssignedDelivery delivery={delivery} /> : <NoDelivery />;
 };
 

@@ -9,14 +9,16 @@ import { useMap } from '../hooks/useMap';
 import HomeFactory from '../../modules/Home/factory';
 import useService from '../hooks/useServices';
 import useSocket from '../hooks/useSocket';
+import { useToaster } from '../hooks/useToast';
 
 const Header = () => {
 
   const { role, user, logout, setDelivery, delivery } = useAuth();
   const { setOriginCoords, setDestinationCoords } = useMap()
   const navigate = useNavigate();
-  const services = useService()
-  const { socket } = useSocket()
+  const toast = useToaster()
+    const { socket } = useSocket()
+  const services = useService(toast.addToast)
 
   const [profileContext, setProfileContext] = useState<ContextMenuType[]>([])
   const [deliveriesContextMenu, setDeliveriesContextMenu] = useState<ContextMenuType[]>([])

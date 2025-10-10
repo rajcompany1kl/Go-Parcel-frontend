@@ -5,6 +5,7 @@ import { useMap } from '../../../shared/hooks/useMap';
 import RouteController from './RouteController';
 import useAuth from '../../../shared/hooks/useAuth'
 import { Socket } from 'socket.io-client';
+import { DeliveryMarker } from '../../../shared/components/ui/markers';
 
 
 // ✅ make props optional for flexibility
@@ -15,7 +16,8 @@ interface Props {
 
 const Map: React.FC<Props> = ({ socket }) => {
     const { delivery, role, user } = useAuth()
-
+    
+    console.log("abhi delivery yaha",delivery);
     console.log("Map component rendered with role:", role);
 
     const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -36,7 +38,7 @@ const Map: React.FC<Props> = ({ socket }) => {
             driverMarkerRef.current.setLatLng(newLatLng);
         } else {
            
-            const newMarker = L.marker(newLatLng);
+            const newMarker = L.marker(newLatLng,{icon: L.icon(DeliveryMarker)});
             newMarker.addTo(map);
             
           

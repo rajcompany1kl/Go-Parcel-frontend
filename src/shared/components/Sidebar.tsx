@@ -4,27 +4,33 @@ import { useMap } from "../hooks/useMap";
 import { formatRouteData, getEstimatedDeliveryDate } from "../Utils";
 import useAuth from "../hooks/useAuth";
 import DeliveryTrackingDetails from "../../modules/Home/Components/DeliveryTrackingDetails";
-import HomeFactory from "../../modules/Home/factory";
 import useService from "../hooks/useServices";
 import { LocationPinIcon, SpinnerIcon } from "./ui/Icons";
 import DriverSidebar from "../../modules/Home/Components/DriverSidebar";
 import axios from "axios";
+import type { DriverUserAccount } from "../types";
+import * as AuthFactory from '../../modules/Auth/factory'
+import HomeFactory from "../../modules/Home/factory";
+import { useToaster } from "../hooks/useToast";
 
 const Sidebar: React.FC<{ 
   isSidebarOpen: boolean, 
   setIsSidebarOpen: Dispatch<SetStateAction<boolean>> 
 }> = ({ isSidebarOpen, setIsSidebarOpen }) => {
-  type FieldType = "origin" | "destination";
+  type FieldType = "origin" | "destination" | "drivers";
 
   const [originInput, setOriginInput] = useState("");
   const [destinationInput, setDestinationInput] = useState("");
-  const [activeField, setActiveField] = useState<FieldType | null>(null);
+  const [activeField, setActiveField] = useState<FieldType | null>('origin');
   const [routeData, setRouteData] = useState<{ distance: string, duration: string } | null>(null)
   const [loading, setLoading] = useState<boolean>(false) 
+  const [availableDrivers, setAvailableDrivers] = useState<AuthFactory.MongoDriverUserDocument[]>([])
+  const [selectedDriver, setSelectedDriver] = useState<AuthFactory.MongoDriverUserDocument | null>(null)
 
   const { origin, destination, routeInfo, setOriginCoords, setDestinationCoords, originCoords, destinationCoords } = useMap()
-  const { role, user } = useAuth()
-  const services = useService()
+  const { role, user,setDelivery } = useAuth()
+  const { addToast } = useToaster()
+  const services = useService(addToast)
 
   const activeSearchTerm = activeField === "origin" ? originInput : destinationInput;
   const { suggestions, isLoading } = useSuggestions(activeSearchTerm);
@@ -37,39 +43,48 @@ const Sidebar: React.FC<{
 
   const handleSelect = (place: { lat: number, lng: number, address: string }) => {
     if (activeField === "origin") setOriginCoords([place.lat,place.lng])
-    else setDestinationCoords([place.lat,place.lng])
+    else if(activeField === 'destination') setDestinationCoords([place.lat,place.lng])
   };
 
   async function createDelivery() {
+    if(!selectedDriver && !originInput && !destinationInput) {
+      addToast('Origin, Destination and Driver Selection is necessary to create a delivery!','error',2000)
+    }
     setLoading(true)
-    if(routeInfo && originCoords && destinationCoords) {
-      const deliveryPayload = HomeFactory.createRide({
-            adminId: user?.id as string,
-            distance: routeInfo.distance.toString(),
-            end_location: { lat: destinationCoords[0], lng: destinationCoords[1] },
-            start_location: { lat: originCoords[0], lng: originCoords[1] },
-            startAddress: originInput,
-            endAddress: destinationInput,
-            initialDriverLocation: { lat: originCoords[0], lng: originCoords[1] }
-          });
-      const response = await services.home.createDelivery(deliveryPayload)
-      console.log("🟩 Full response:", response);
-         const response2 = await axios.post('http://localhost:8080/api/send-email', {
-         to: 'kodeyan9@gmail.com',
-         subject: 'New Delivery Created',
-         text: `A new delivery has been created from ${originInput} to ${destinationInput} with trackingId ${response.ride._id}.`
-      });
-      setLoading(false)
-      setDestinationInput("")
-      setOriginInput("")
-      if(isSidebarOpen) setIsSidebarOpen(false)
-      if(response.data) {
-        console.log("rider provider",response.data)
-      
-      console.log(" mail sent")
+    if(selectedDriver) {
+      const driver = AuthFactory.createDriverUserAccount(selectedDriver)
+      if(routeInfo && originCoords && destinationCoords) {
+        const deliveryPayload = HomeFactory.createRide({
+              adminId: user?.id as string,
+              driverId: driver?.id as string,
+              distance: routeInfo.distance.toString(),
+              end_location: { lat: destinationCoords[0], lng: destinationCoords[1] },
+              start_location: { lat: originCoords[0], lng: originCoords[1] },
+              startAddress: originInput,
+              endAddress: destinationInput,
+              initialDriverLocation: { lat: originCoords[0], lng: originCoords[1] }
+            });
+        const response = await services.home.createDelivery(deliveryPayload)
+        setDelivery(HomeFactory.createRideFromMongoDBResponse(response.ride))
+        // TODO: MOve this API call to services
+        await axios.post('http://localhost:8080/api/send-email', {
+          to: 'kodeyan9@gmail.com',
+          subject: 'New Delivery Created',
+          text: `A new delivery has been created from ${originInput} to ${destinationInput} with trackingId ${response.ride._id}.`
+        });
+        setLoading(false)
+        setDestinationInput("")
+        setOriginInput("")
+        if(isSidebarOpen) setIsSidebarOpen(false)
+        if(response.data) addToast("Delivery created successfully!")
       }
     }
   } 
+
+  async function fetchAvailableDrivers() {
+    const response = await services.home.getAvailableDrivers()
+    if(response.data) setAvailableDrivers(response.data as AuthFactory.MongoDriverUserDocument[])
+  }
 
   useEffect(() => {
     if(originCoords && destinationCoords && routeInfo && role !== 'user') {
@@ -77,6 +92,7 @@ const Sidebar: React.FC<{
       const duration = getEstimatedDeliveryDate(routeInfo.duration)
       setRouteData({ distance, duration })
     }
+    if(role === 'admin') fetchAvailableDrivers()
   },[routeInfo])
 
   if (role === 'user') return <DeliveryTrackingDetails />;
@@ -118,6 +134,11 @@ const Sidebar: React.FC<{
             />
           </div>
         </div>
+
+        <div className="flex justify-start items-center space-x-4">
+          {selectedDriver ? <p className="text-xl text-gray-600 tracking-wide font-bold">Selected Driver</p> : <button className="w-fit text-white font-medium py-1.5 px-2 rounded-lg bg-neutral-800" onClick={() => setActiveField('drivers')}>Select Driver</button>}
+          {selectedDriver && <p className="text-xl text-gray-600 tracking-wide font-light">{selectedDriver.firstName} {selectedDriver.lastName}</p>}
+        </div>
         
         <div className="relative">
           {isLoading && (
@@ -128,13 +149,24 @@ const Sidebar: React.FC<{
           )}
           {activeField && suggestions.length > 0 && !isLoading && (
             <ul className="absolute w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 z-10 max-h-60 overflow-y-auto">
-              {suggestions.map((place, i) => (
+              {activeField !== 'drivers' ? suggestions.map((place, i) => (
                 <li 
                   key={i}
                   onClick={() => handleSelect(place)}
                   className="px-4 py-2.5 cursor-pointer hover:bg-blue-50 text-gray-700 transition-colors"
                 >
                   {place.address}
+                </li>
+              )) : availableDrivers.map((driver,i) => (
+                <li 
+                  key={i}
+                  onClick={() => {
+                    setSelectedDriver(driver)
+                    setActiveField(null)
+                  }}
+                  className="px-4 py-2.5 cursor-pointer hover:bg-blue-50 text-gray-700 transition-colors"
+                >
+                  {driver.firstName} {driver.lastName}
                 </li>
               ))}
             </ul>

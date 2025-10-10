@@ -58,6 +58,7 @@ export interface Coordinates {
 }
 export type CreateRideParams = {
     adminId: string;
+    driverId: string;
     distance: string;
     startAddress: string;
     endAddress: string;
@@ -90,3 +91,27 @@ export interface AuthContextType {
 }
 
 export interface LoginCredential { email: string, password: string }
+
+
+export type ToastType = 'success' | 'error' | 'info' | 'warning';
+
+export interface Toast {
+  id: number;
+  message: string;
+  type: ToastType;
+}
+
+export interface ToasterContextProps {
+  addToast: (message: string, type?: ToastType, duration?: number) => void;
+}
+
+export interface ToasterContainerProps {
+    toasts: Toast[];
+    removeToast: (id: number) => void;
+}
+
+export interface ToastMessageProps extends Toast {
+    onClose: () => void;
+}
+
+export type ToastFunction = (message: string, type?: ToastType, duration?: number) => void

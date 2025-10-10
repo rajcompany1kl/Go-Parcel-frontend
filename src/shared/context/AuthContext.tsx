@@ -2,11 +2,11 @@ import { createContext, useEffect, useState, type ReactNode } from "react";
 import { DriverRideStatus, type AdminUserAccount, type AuthContextType, type Coordinates, type DriverUserAccount, type Ride, type RoleType } from "../types";
 import Cookies from "js-cookie";
 import * as AuthFactory from '../../modules/Auth/factory'
-import AuthService from "../../modules/Auth/Services";
 import useService from "../hooks/useServices";
 import HomeFactory from "../../modules/Home/factory";
 import { useMap } from "../hooks/useMap";
 import { io, Socket } from "socket.io-client";
+import { useToaster } from "../hooks/useToast";
 
 const SERVER = 'http://localhost:8080';
 
@@ -57,8 +57,8 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [ _, setSocket ] = useState<Socket | null>(null);
     const [ adminDeliveries, setAdminDeliveries ] = useState<Ride[]>([])
 
-
-    const services = useService()
+    const toast = useToaster()
+    const services = useService(toast.addToast)
     const { setOrigin, setDestination } = useMap()
 
     useEffect(() => {
@@ -99,7 +99,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         credential: {email: string, password: string},
         navigate: any
     ) {
-        const request = role === 'driver' ? AuthService.driver.login : AuthService.admin.login
+        const request = role === 'driver' ? services.auth.driver.login : services.auth.admin.login
         const response = await request(credential)
         if(response) {
             const userObject = AuthFactory.createAdminUserAccount(role === 'driver' ? response.data.driver : response.data.user)
@@ -119,7 +119,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         userObject: Omit<AdminUserAccount,'id'> | Omit<DriverUserAccount,'id' | 'status' | 'currentLoc'>,
         setFormState: (formState: boolean) => void
     ) {
-        const request = role === 'driver' ? AuthService.driver.signup : AuthService.admin.signup
+        const request = role === 'driver' ? services.auth.driver.signup : services.auth.admin.signup
         const response = await request(userObject);
         if(response) {
             setFormState(true)

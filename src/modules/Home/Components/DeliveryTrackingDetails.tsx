@@ -2,10 +2,15 @@ import { useEffect, useState } from 'react';
 import useAuth from '../../../shared/hooks/useAuth'
 import useService from '../../../shared/hooks/useServices';
 import type { Coordinates } from '../../../shared/types';
+import { useToaster } from '../../../shared/hooks/useToast';
+import HomeFactory from '../factory';
+import { useMap } from '../../../shared/hooks/useMap';
 
 const DeliveryTrackingDetails = () => {
-    const { delivery } = useAuth()
-    const services = useService()
+    const { delivery, setDelivery, user } = useAuth()
+    const { setOriginCoords, setDestinationCoords } = useMap()
+    const toast = useToaster()
+    const services = useService(toast.addToast)
  
     const [formattedDistance, setFormattedDistance] = useState<string>("")
     const [ lastDriverLocationAddress, setLastDriverLocationAddress ] = useState<string>("")
@@ -14,6 +19,20 @@ const DeliveryTrackingDetails = () => {
         const response = await services.home.getAddressUsingCoords(driverLocation.lat, driverLocation.lng)
         setLastDriverLocationAddress(response?.display_name)
     }
+
+    async function setRouteCoordinates() {
+        if(delivery) {
+            console.log("kabdddiiiiiiiii", delivery)
+
+            setOriginCoords([delivery.leg.start_location.lat, delivery.leg.start_location.lng])
+            setDestinationCoords([delivery.leg.end_location.lat, delivery.leg.end_location.lng])
+            console.log("ytwtyegwauehfoqj",delivery);
+        }
+    }
+    useEffect(() => {
+        console.log("Delivery updatedrtrtrf:", delivery);
+        setRouteCoordinates()
+    }, [user]);
 
     useEffect(() => {
         if(delivery) {

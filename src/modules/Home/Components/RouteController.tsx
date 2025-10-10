@@ -4,7 +4,7 @@ import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
 import 'leaflet-routing-machine';
 import 'leaflet-control-geocoder';
 import { useMap } from '../../../shared/hooks/useMap';
-import useService from '../../../shared/hooks/useServices';
+import { DestinationMarker, OriginMarker } from '../../../shared/components/ui/markers';
 
 interface RouteControllerProps {
     onRouteFound: (coordinates: L.LatLng[]) => void;
@@ -12,7 +12,6 @@ interface RouteControllerProps {
 
 const RouteController: React.FC<RouteControllerProps> = ({ onRouteFound }) => {
     const { mapInstance, origin, destination, setRouteInfo, geocodeAddress, originCoords, destinationCoords } = useMap();
-    const services = useService();
     const routingControlRef = useRef<L.Routing.Control | null>(null);
     const pickupMarkerRef = useRef<L.Marker | null>(null);
     const dropMarkerRef = useRef<L.Marker | null>(null);
@@ -28,11 +27,11 @@ const RouteController: React.FC<RouteControllerProps> = ({ onRouteFound }) => {
 
             const waypoints: L.LatLng[] = [];
             if (originCoords) {
-                pickupMarkerRef.current = L.marker(originCoords).addTo(mapInstance).bindPopup(`Origin: ${origin}`);
+                pickupMarkerRef.current = L.marker(originCoords,{icon: L.icon(OriginMarker)}).addTo(mapInstance).bindPopup(`Origin: ${origin}`);
                 waypoints.push(L.latLng(originCoords));
             }
             if (destinationCoords) {
-                dropMarkerRef.current = L.marker(destinationCoords).addTo(mapInstance).bindPopup(`Destination: ${destination}`);
+                dropMarkerRef.current = L.marker(destinationCoords,{icon: L.icon(DestinationMarker)}).addTo(mapInstance).bindPopup(`Destination: ${destination}`);
                 waypoints.push(L.latLng(destinationCoords));
             }
 
