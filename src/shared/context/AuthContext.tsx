@@ -8,7 +8,7 @@ import { useMap } from "../hooks/useMap";
 import { io, Socket } from "socket.io-client";
 import { useToaster } from "../hooks/useToast";
 
-const SERVER = 'http://localhost:8080';
+const SERVER = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080';
 
 
 export const default_values = {

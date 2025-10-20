@@ -14,7 +14,7 @@ import type {
 import ChatMessages from '../Components/ChatMessages';
 
 
-const SERVER = 'http://localhost:8080';
+const SERVER = import.meta.env.VITE_CHAT_SERVER_URL || 'http://localhost:8080';
 
 export default function UserChat() {
 

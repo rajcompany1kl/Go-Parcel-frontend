@@ -16,7 +16,7 @@ type Message = {
 
 export default function ChatSection() {
   const navigate = useNavigate();
-
+  const serverUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080';
   const [manual, setManual] = useState<boolean>(false); 
   const [open, setOpen] = useState<boolean>(false);
   const [input, setInput] = useState<string>('');
@@ -89,7 +89,7 @@ export default function ChatSection() {
 
     try {
       const res = await axios.post<{ answer?: string; suggestions?: { question: string }[] }>(
-        'http://localhost:8080/api/faq/query',
+        `${serverUrl}/api/faq/query`,
         { q }
       );
 

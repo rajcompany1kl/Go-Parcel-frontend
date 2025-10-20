@@ -1,8 +1,9 @@
 import axios, { AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from "axios";
 import Cookie from 'js-cookie'
 
+const SERVER_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080';
 const http = axios.create({
-  baseURL: 'http://localhost:8080/',
+  baseURL: SERVER_URL,
   timeout: 5000,
   headers: {
     'Content-Type': 'application/json',

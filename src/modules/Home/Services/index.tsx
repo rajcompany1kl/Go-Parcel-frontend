@@ -4,7 +4,8 @@ import http from "../../../shared/Utils/http";
 const HomeServices = (toast: ToastFunction) => {
     async function getCoordinates(address: string): Promise<any | null> {
         try {
-            const response = await http.get(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`)
+            const response = await http.get(`/api/nominatim/search?q=${encodeURIComponent(address)}`)
+
             if(response) return response
             else return null
         } catch (error: any) {
@@ -16,9 +17,8 @@ const HomeServices = (toast: ToastFunction) => {
     
     async function placesAutocompletion(query: string, options?: { signal: AbortSignal }): Promise<any | null> {
         try {
-            const response = await http.get(`https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=6&q=${encodeURIComponent(
-              query
-            )}`,options)
+            const response = await http.get(`/api/nominatim/search?q=${encodeURIComponent(query)}`)
+
             if(response) return response
             else return null
         } catch (error: any) {
@@ -56,7 +56,7 @@ const HomeServices = (toast: ToastFunction) => {
         lng: number
     ) {
         try {
-            const { data } = await http.get(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+            const { data } = await http.get(`/api/nominatim/reverse?lat=${lat}&lon=${lng}`);
             return data
         } catch (error: any) {
             console.error(error);

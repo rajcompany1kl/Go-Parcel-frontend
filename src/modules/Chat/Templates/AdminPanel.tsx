@@ -6,7 +6,7 @@ import ChatRoom from '../Components/ChatRoom';
 import useAuth from '../../../shared/hooks/useAuth';
 import Header from '../../../shared/components/Header';
 
-const SERVER = 'http://localhost:8080';
+const SERVER = import.meta.env.VITE_CHAT_SERVER_URL || 'http://localhost:8080';
 
 export default function AdminPanel() {
    const { user, role } = useAuth();

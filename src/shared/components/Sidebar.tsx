@@ -18,7 +18,7 @@ const Sidebar: React.FC<{
   setIsSidebarOpen: Dispatch<SetStateAction<boolean>> 
 }> = ({ isSidebarOpen, setIsSidebarOpen }) => {
   type FieldType = "origin" | "destination" | "drivers";
-
+  const serverUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080';
   const [originInput, setOriginInput] = useState("");
   const [destinationInput, setDestinationInput] = useState("");
   const [activeField, setActiveField] = useState<FieldType | null>('origin');
@@ -67,7 +67,7 @@ const Sidebar: React.FC<{
         const response = await services.home.createDelivery(deliveryPayload)
         setDelivery(HomeFactory.createRideFromMongoDBResponse(response.ride))
         // TODO: MOve this API call to services
-        await axios.post('http://localhost:8080/api/send-email', {
+        await axios.post(`${serverUrl}/api/send-email`, {
           to: 'kodeyan9@gmail.com',
           subject: 'New Delivery Created',
           text: `A new delivery has been created from ${originInput} to ${destinationInput} with trackingId ${response.ride._id}.`

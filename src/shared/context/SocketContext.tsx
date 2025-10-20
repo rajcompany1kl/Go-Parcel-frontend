@@ -6,7 +6,8 @@ export const SocketContext = createContext<{socket: Socket | null}>({
 })
 
 const SocketProvider: React.FC<{children: ReactNode}> = ({ children }) => {
-    const socket = io("http://localhost:8080", { transports: ["websocket"] });
+    const server = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080';
+    const socket = io(server, { transports: ["websocket"] });
     return (
         <SocketContext.Provider value={{socket}}>{ children }</SocketContext.Provider>
     )

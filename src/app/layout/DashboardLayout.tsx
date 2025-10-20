@@ -71,7 +71,7 @@ const DashboardLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
           {role === 'admin' ? (
             <button
               onClick={() => navigate('/adminchat')}
-              className="w-14 h-14 rounded-full shadow-xl bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition-all"
+              className="w-14 h-14 rounded-full shadow-xl bg-black text-white flex items-center justify-center hover:bg-gray-700 transition-all"
               aria-label="Toggle Chat"
             >
               💬
