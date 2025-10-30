@@ -107,7 +107,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ items, children }) => {
                         backgroundColor: 'rgba(255, 255, 255, 0.8)'
                     }}
                 >
-                    {items.map(renderMenuItem)}
+                    {items.length > 0 ? items.map(renderMenuItem) : <div className='text-center text-gray-500'>Empty</div>}
                 </div>
             )}
         </div>

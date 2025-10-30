@@ -99,6 +99,18 @@ const HomeServices = (toast: ToastFunction) => {
             return null;
         }
     }
-    return {getCoordinates, placesAutocompletion, createDelivery, getDeliveryDetails, getAddressUsingCoords, getAllDeliveries, getAvailableDrivers, getDriverDelivery}
+
+    async function endDelivery(driverId: string) {
+        try {
+            const { data } = await http.post(`/AdminUser/endRide`,{driverId})
+            toast("Delivery ended successfully!")
+            return data
+        } catch (error: any) {
+            console.error(error);
+            toast(error.message,'error');
+            return null;
+        }
+    }
+    return {getCoordinates, placesAutocompletion, createDelivery, getDeliveryDetails, getAddressUsingCoords, getAllDeliveries, getAvailableDrivers, getDriverDelivery, endDelivery}
 }
 export default HomeServices

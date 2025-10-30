@@ -35,8 +35,10 @@ const Header = () => {
   async function createAdminDeliveriesMenu() {
     if (user) {
       const response = await services.home.getAllDeliveries(user.id)
+      const activeDeliveries = (response.rides as any[]).filter(ride => (ride as Ride).isRideEnded === false)
+      console.log("Active deliveries for admin:", activeDeliveries);
       const deliveryMenu = HomeFactory.createAdminDeliveriesContextMenuItems(
-        response.rides,
+        activeDeliveries,
         (coordinates: [number, number]) => setOriginCoords(coordinates),
         (coordinates: [number, number]) => setDestinationCoords(coordinates),
         (delivery: Ride) => setDelivery(delivery)
@@ -56,22 +58,14 @@ const Header = () => {
   }, [user]);
 
   useEffect(() => {
-    console.log("hello");
-    // if (socket) {
-      socket?.on('driver:location',({driverId, lat, lng}: {driverId: string, lat: number, lng: number}) => {
-        console.log(`Setting latitude longitude fff through socket ${driverId}, ${lat}, ${lng}` )
-        console.log("Current delivery in context", delivery)
-        console.log("Current delivery driverId", delivery?.driverId)
-        console.log("Received driverId", driverId)
-        if(delivery?.driverId === driverId) {
-          console.log("Updating delivery location in context")
-          setDelivery((prev) => {
-            const updatedDelivery = {...prev, lastDriverLocation: {lat: lat, lng: lng}}
-            return updatedDelivery
-          })
-        }
-      })
-    // }
+    socket?.on('driver:location',({driverId, lat, lng}: {driverId: string, lat: number, lng: number}) => {
+      if(delivery?.driverId === driverId) {
+        setDelivery((prev) => {
+          const updatedDelivery = {...prev, lastDriverLocation: {lat: lat, lng: lng}}
+          return updatedDelivery
+        })
+      }
+    })
   }, [delivery, socket])
 
 

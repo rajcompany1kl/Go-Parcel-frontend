@@ -8,7 +8,7 @@ import useService from "../hooks/useServices";
 import { LocationPinIcon, SpinnerIcon } from "./ui/Icons";
 import DriverSidebar from "../../modules/Home/Components/DriverSidebar";
 import axios from "axios";
-import type { DriverUserAccount } from "../types";
+import type { DriverUserAccount, Ride } from "../types";
 import * as AuthFactory from '../../modules/Auth/factory'
 import HomeFactory from "../../modules/Home/factory";
 import { useToaster } from "../hooks/useToast";
@@ -28,7 +28,7 @@ const Sidebar: React.FC<{
   const [selectedDriver, setSelectedDriver] = useState<AuthFactory.MongoDriverUserDocument | null>(null)
 
   const { origin, destination, routeInfo, setOriginCoords, setDestinationCoords, originCoords, destinationCoords } = useMap()
-  const { role, user,setDelivery } = useAuth()
+  const { role, user,setDelivery, delivery, setTrackingId, setAdminDeliveries } = useAuth()
   const { addToast } = useToaster()
   const services = useService(addToast)
 
@@ -65,6 +65,7 @@ const Sidebar: React.FC<{
               initialDriverLocation: { lat: originCoords[0], lng: originCoords[1] }
             });
         const response = await services.home.createDelivery(deliveryPayload)
+        setTrackingId(response.ride._id)
         setDelivery(HomeFactory.createRideFromMongoDBResponse(response.ride))
         // TODO: MOve this API call to services
         await axios.post(`${serverUrl}/api/send-email`, {
@@ -80,6 +81,32 @@ const Sidebar: React.FC<{
       }
     }
   } 
+
+  function resetDeliveryCreation() {
+    setSelectedDriver(null)
+    setOriginCoords(null)
+    setDestinationCoords(null)
+    setRouteData(null)
+    setDelivery(null as any)
+  }
+
+  async function endDelivery() {
+    if(delivery) {
+      await services.home.endDelivery(delivery.driverId)
+        .then((res) => {
+          if(res.success) {
+            setAdminDeliveries((prev) => prev.filter((d) => d.driverId !== delivery.driverId))
+            resetDeliveryCreation()
+          } else {
+            addToast('Failed to end delivery','error')
+          }
+        })
+        .catch((err) => {
+          console.error(err)
+          addToast('An error occurred while ending the delivery','error')
+        })
+    }
+  }
 
   async function fetchAvailableDrivers() {
     const response = await services.home.getAvailableDrivers()
@@ -180,12 +207,16 @@ const Sidebar: React.FC<{
           <p className="text-base"><strong>ETA:</strong> {routeData?.duration}</p>
         </div>
       </div>}
-      
-      <div className="mt-6">
+
+      {delivery ? <div className="mt-6">
+        <button onClick={endDelivery} className="w-full text-white font-bold py-3 px-4 rounded-lg bg-neutral-800 transition-all duration-300 transform hover:ring-2 ring-neutral-800 ring-offset-2">
+          End delivery
+        </button>
+      </div> : <div className="mt-6">
         <button onClick={createDelivery} className="w-full text-white font-bold py-3 px-4 rounded-lg bg-neutral-800 transition-all duration-300 transform hover:ring-2 ring-neutral-800 ring-offset-2">
           {!loading ? 'Create Delivery' : 'Creating delivery...'}
         </button>
-      </div>
+      </div>}
     </div>
   );
 };
