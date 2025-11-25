@@ -4,6 +4,7 @@ import UserSignupForm from '../Components/UserSignupForm';
 import useAuth from '../../../shared/hooks/useAuth';
 import type { RoleType } from '../../../shared/types';
 import { useNavigate } from 'react-router';
+import http from '../../../shared/Utils/http';
 
 const AuthTemplate = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -17,13 +18,22 @@ const AuthTemplate = () => {
   const handleTracking = () => fetchDelivery(trackingId, (path: string) => navigate(path));
 
   // Show bubble after 2 seconds
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowNotice(true);
-    }, 2000);
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     setShowNotice(true);
+  //   }, 2000);
 
-    return () => clearTimeout(timer);
-  }, []);
+  //   return () => clearTimeout(timer);
+  // }, []);
+
+  
+ 
+  // Show bubble ONLY if server fails to respond
+useEffect(() => {
+  http.get('/')
+    .then(() => setShowNotice(false))
+    .catch(() => setShowNotice(true));
+}, []);
 
   return (
     <div className="min-h-screen flex flex-col items-center mt-24 md:mt-0 md:justify-center">
