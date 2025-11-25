@@ -15,7 +15,7 @@ const AuthTemplate = () => {
   const handleTracking = () => fetchDelivery(trackingId, (path: string) => navigate(path))
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center">
+    <div className="min-h-screen flex flex-col items-center mt-24 md:mt-0 md:justify-center">
       <span className="text-6xl font-bold mb-14">GoParcel</span>
       <div className="w-full max-w-lg rounded-2xl overflow-hidden">
         <div className="px-8 py-6">

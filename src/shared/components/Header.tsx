@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type MouseEventHandler } from 'react';
 import { Person, RideIcon } from './ui/Icons';
 import useAuth from '../hooks/useAuth';
 import { useNavigate } from 'react-router';
@@ -10,9 +10,15 @@ import HomeFactory from '../../modules/Home/factory';
 import useService from '../hooks/useServices';
 import useSocket from '../hooks/useSocket';
 import { useToaster } from '../hooks/useToast';
+interface HeaderProps {
+  toggleSidebar?: MouseEventHandler<HTMLButtonElement>;
+  isSidebarOpen?: boolean;
+}
 
-const Header = () => {
 
+const Header: React.FC<HeaderProps> = ({ toggleSidebar, isSidebarOpen }) => {
+
+  
   const { role, user, logout, setDelivery, delivery } = useAuth();
   const { setOriginCoords, setDestinationCoords } = useMap()
   const navigate = useNavigate();
@@ -75,11 +81,11 @@ const Header = () => {
 
 
   return (
-    <div className='w-full h-[10vh] bg-black flex justify-around items-center px-10'>
+    <div className='w-full h-[10vh] bg-black flex justify-around items-center pl-10 pr-5'>
       <div className="flex-1">
         <span className="text-white text-2xl font-medium">Commute</span>
       </div>
-      <div className="w-fit h-full flex justify-end items-center gap-x-5">
+      <div className="w-fit h-full flex justify-end items-center gap-x-2 ">
       {(role=='admin') && 
         <ContextMenu items={deliveriesContextMenu}>
           <div className="w-12 h-12 rounded-lg hover:bg-neutral-800 hover:cursor-pointer flex justify-center items-center">
@@ -93,6 +99,27 @@ const Header = () => {
             <Person className="w-8 h-8 fill-white" />
           </div>
         </ContextMenu>
+         {/* Hamburger Icon for Mobile */}
+        <button
+          className="md:hidden z-50 p-2 rounded-md bg-black text-white"
+          onClick={toggleSidebar}
+          aria-label="Toggle sidebar"
+        >
+          <svg
+            className="w-6 h-8"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d={isSidebarOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'}
+            />
+          </svg>
+        </button>
       </div>
 
     </div>
