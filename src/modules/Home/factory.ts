@@ -11,6 +11,9 @@ import type { CreateRideParams, Leg, Ride } from "../../shared/types";
 export const createRide = ({
     adminId,
     driverId,
+    recieverName,
+    recieverPhone,
+    itemDescription,
     distance,
     startAddress,
     endAddress,
@@ -23,6 +26,9 @@ export const createRide = ({
     const newRide: Ride = {
         adminId,
         driverId,
+        recieverName,
+        recieverPhone,
+        itemDescription,
         rideStartAt: creationTime,
         rideEndAt: null,
         isRideStarted: true,
@@ -54,6 +60,9 @@ export const createRideFromMongoDBResponse = (dto: any): Ride => {
     return {
         adminId: dto.adminId,
         driverId: dto.driverId,
+        recieverName: dto.recieverName,
+        recieverPhone: dto.recieverPhone,
+        itemDescription: dto.itemDescription,
         rideStartAt: dto.rideStartAt,
         rideEndAt: dto.rideEndAt,
         isRideStarted: dto.isRideStarted,

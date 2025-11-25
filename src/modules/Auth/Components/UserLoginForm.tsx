@@ -43,7 +43,7 @@ const UserLoginForm: React.FC<{ role: string }> = ({ role }) => {
             />
             <button
                 type="submit"
-                className="w-full bg-neutral-900 text-white py-3 rounded-lg font-semibold hover:bg-neutral-700 transition"
+                className="hover:cursor-pointer  w-full bg-neutral-900 text-white py-3 rounded-lg font-semibold hover:bg-neutral-700 transition"
             >
                 { role === 'driver' ? 'Login as Driver' : 'Login' }
             </button>

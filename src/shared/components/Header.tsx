@@ -17,7 +17,7 @@ const Header = () => {
   const { setOriginCoords, setDestinationCoords } = useMap()
   const navigate = useNavigate();
   const toast = useToaster()
-    const { socket } = useSocket()
+  const { socket } = useSocket()
   const services = useService(toast.addToast)
 
   const [profileContext, setProfileContext] = useState<ContextMenuType[]>([])
@@ -31,6 +31,11 @@ const Header = () => {
       avatar: { firstName: user.firstName, lastName: user.lastName }
     }
   }
+
+  useEffect(()=>{
+    if (role === 'admin') createAdminDeliveriesMenu();
+    console.log("deliveries resetting",delivery)
+  },[delivery])
 
   async function createAdminDeliveriesMenu() {
     if (user) {
@@ -75,11 +80,13 @@ const Header = () => {
         <span className="text-white text-2xl font-medium">Commute</span>
       </div>
       <div className="w-fit h-full flex justify-end items-center gap-x-5">
+      {(role=='admin') && 
         <ContextMenu items={deliveriesContextMenu}>
           <div className="w-12 h-12 rounded-lg hover:bg-neutral-800 hover:cursor-pointer flex justify-center items-center">
             <RideIcon className="w-8 h-8 fill-white" />
           </div>
         </ContextMenu>
+      }
 
         <ContextMenu items={profileContext}>
           <div className="w-12 h-12 rounded-lg hover:bg-neutral-800 hover:cursor-pointer flex justify-center items-center">

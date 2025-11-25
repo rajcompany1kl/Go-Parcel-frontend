@@ -30,6 +30,9 @@ export interface DriverUserAccount {
 export interface Ride {
     adminId: string,
     driverId: string,
+    recieverName: string;
+    recieverPhone: string;
+    itemDescription: string;
     rideStartAt: number,
     rideEndAt: number | null,
     isRideStarted: boolean,
@@ -60,6 +63,9 @@ export type CreateRideParams = {
     adminId: string;
     driverId: string;
     distance: string;
+    recieverName: string;
+    recieverPhone: string;
+    itemDescription: string;
     startAddress: string;
     endAddress: string;
     start_location: Coordinates;

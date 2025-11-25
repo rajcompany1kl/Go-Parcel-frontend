@@ -16,7 +16,7 @@ const AuthTemplate = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center">
-      <span className="text-6xl font-bold mb-14">Commute</span>
+      <span className="text-6xl font-bold mb-14">GoParcel</span>
       <div className="w-full max-w-lg rounded-2xl overflow-hidden">
         <div className="px-8 py-6">
           <h1 className="text-2xl font-bold text-center">
@@ -28,7 +28,7 @@ const AuthTemplate = () => {
         <select
           value={role}
           onChange={(e) => setRole(e.target.value as RoleType)}
-          className="px-2 py-2 border rounded-lg text-sm font-medium focus:ring-2 focus:ring-indigo-400"
+          className="hover:cursor-pointer px-2 py-2 border rounded-lg text-sm font-medium focus:ring-2 focus:ring-indigo-400"
         >
           <option value="driver">Driver</option>
           <option value="admin">Admin</option>
@@ -51,7 +51,7 @@ const AuthTemplate = () => {
               </div>
               <button
                   onClick={handleTracking}
-                  className="w-full bg-neutral-900 text-white py-3 rounded-lg font-semibold hover:bg-neutral-700 transition"
+                  className="hover:cursor-pointer w-full bg-neutral-900 text-white py-3 rounded-lg font-semibold hover:bg-neutral-700 transition"
               >
                 Track your delivery
               </button>
@@ -59,11 +59,11 @@ const AuthTemplate = () => {
             
           }
 
-          <p className="text-center text-sm text-gray-600 mt-6">
+          <p className="hover:cursor-pointer text-center text-sm text-gray-600 mt-6">
             {role !== 'user' &&  (isLogin ? "Don’t have an account?" : "Already have an account?")}{" "}
-            <button
+            <button 
               onClick={() => setIsLogin(!isLogin)}
-              className="text-indigo-600 font-medium hover:underline"
+              className=" text-indigo-600 font-medium hover:underline hover:cursor-pointer"
             >
               {role !== 'user' && (isLogin ? "Sign up" : "Login")}
             </button>
