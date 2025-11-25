@@ -12,19 +12,20 @@ const AuthTemplate = () => {
   const { trackingId, setTrackingId, fetchDelivery } = useAuth();
 
   const [showNotice, setShowNotice] = useState(false);   // <-- new
+ const [showDummy, setShowDummy] = useState(false);   // <-- new
 
   const navigate = useNavigate();
 
   const handleTracking = () => fetchDelivery(trackingId, (path: string) => navigate(path));
 
-  // Show bubble after 2 seconds
-  // useEffect(() => {
-  //   const timer = setTimeout(() => {
-  //     setShowNotice(true);
-  //   }, 2000);
+ //  Show bubble after 2 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowDummy(true);
+    }, 2000);
 
-  //   return () => clearTimeout(timer);
-  // }, []);
+    return () => clearTimeout(timer);
+  }, []);
 
   
  
@@ -48,6 +49,24 @@ useEffect(() => {
 
           <button
             onClick={() => setShowNotice(false)}
+            className="mt-2 text-xs text-gray-300 hover:underline"
+          >
+            Close
+          </button>
+        </div>
+      )}
+
+       {/* Notice Bubble */}
+      {showDummy && !showNotice && (
+        <div className="fixed bottom-6 right-6 max-w-xs bg-neutral-900 text-white p-4 rounded-xl shadow-lg text-sm animate-fadeIn z-50">
+          <p>
+            Dummy Credentials you can use:
+          </p>
+          <p>Email - raj@gmail.com</p>
+          <p>Password - 123456</p>
+
+          <button
+            onClick={() => setShowDummy(false)}
             className="mt-2 text-xs text-gray-300 hover:underline"
           >
             Close
