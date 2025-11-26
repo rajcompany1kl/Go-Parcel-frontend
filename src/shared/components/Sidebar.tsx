@@ -210,7 +210,7 @@ await axios.post(`${serverUrl}/api/send-email`, {
   }
 
   return (
-    <div className="w-96 bg-white shadow-2xl p-6 font-sans flex flex-col h-full sm:h-auto">
+    <div className="w-96 bg-white shadow-2xl p-6 font-sans flex flex-col h-full sm:min-h-full sm:h-auto">
       <h1 className="text-2xl font-bold text-gray-800 mb-6">Route Planner</h1>
 
       <div className="space-y-5 flex-grow relative">
@@ -288,12 +288,7 @@ await axios.post(`${serverUrl}/api/send-email`, {
        
       </div>
 
-      {origin && destination && routeInfo && <div className="space-y-1 bg-slate-50 shadow-lg rounded-md p-2">
-        <div className="flex flex-col">
-          <p className="text-base"><strong>Distance:</strong> {routeData?.distance}</p>
-          <p className="text-base"><strong>ETA:</strong> {routeData?.duration}</p>
-        </div>
-      </div>}
+
 
       {delivery ? <div className="mt-6 flex gap-5">
         <button onClick={endDelivery} className="hover:cursor-pointer w-full text-white font-bold py-3 px-4 rounded-lg bg-neutral-800 transition-all duration-300 transform hover:ring-2 ring-neutral-800 ring-offset-2">

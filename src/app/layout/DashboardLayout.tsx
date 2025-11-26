@@ -55,7 +55,7 @@ const DashboardLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
             >
               💬
             </button>
-          ) : (
+          ) : ( role !== 'driver' &&
             <ChatSection />
           )}
         </div>

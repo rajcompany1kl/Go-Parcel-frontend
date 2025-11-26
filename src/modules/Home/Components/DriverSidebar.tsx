@@ -147,7 +147,9 @@ const DriverSidebar: React.FC = () => {
     }
 
     useEffect(() => {
+        if(user?.id){
         getAssignedDelivery();
+        }
     }, [user]);
 
     return delivery ? <AssignedDelivery delivery={delivery} /> : <NoDelivery />;

@@ -15,7 +15,6 @@ interface HeaderProps {
   isSidebarOpen?: boolean;
 }
 
-
 const Header: React.FC<HeaderProps> = ({ toggleSidebar, isSidebarOpen }) => {
 
   
@@ -85,6 +84,11 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, isSidebarOpen }) => {
     })
   }, [delivery, socket])
 
+ function handleSignOutUser() {
+    // cast null to Ride to satisfy the current setDelivery type
+    setDelivery(null as unknown as Ride);
+    navigate('/auth');
+  }
 
   return (
     <div className='w-full h-[10vh] bg-black flex justify-around items-center pl-10 pr-5'>
@@ -99,12 +103,18 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, isSidebarOpen }) => {
           </div>
         </ContextMenu>
       }
-
+         {(role=='admin' || role=='driver')?
         <ContextMenu items={profileContext}>
           <div className="w-12 h-12 rounded-lg hover:bg-neutral-800 hover:cursor-pointer flex justify-center items-center">
             <Person className="w-8 h-8 fill-white" />
           </div>
         </ContextMenu>
+        : <span className='hover:cursor-pointer' onClick={()=> handleSignOutUser()}>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <path fill="white" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+</svg>
+        </span>
+          }
          {/* Hamburger Icon for Mobile */}
         <button
           className="md:hidden z-50 p-2 rounded-md bg-black text-white"
