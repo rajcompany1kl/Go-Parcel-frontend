@@ -13,6 +13,8 @@ interface Props {
 }
 
 const Map: React.FC<Props> = ({ socket }) => {
+    const [mapReady, setMapReady] = useState(false);
+
     const { delivery, role, user } = useAuth();
     const mapContainerRef = useRef<HTMLDivElement>(null);
     const mapInstanceRef = useRef<L.Map | null>(null);
@@ -40,8 +42,11 @@ const Map: React.FC<Props> = ({ socket }) => {
 
     // Driver real-time tracking via socket
     useEffect(() => {
+        console.log("aya to")
         if (role !== 'driver' || !socket || !user) return;
+        console.log("aya to 2")
         if (!mapInstanceRef.current) return;
+        console.log("aya to 3")
 
         const map = mapInstanceRef.current;
         let marker: L.Marker | null = null;
@@ -76,7 +81,7 @@ const Map: React.FC<Props> = ({ socket }) => {
             if (marker) map.removeLayer(marker);
             navigator.geolocation.clearWatch(watchId);
         };
-    }, [role, socket, user]);
+    }, [role, socket, user, mapReady]);
 
     // Initialize map
     useEffect(() => {
@@ -86,7 +91,7 @@ const Map: React.FC<Props> = ({ socket }) => {
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
         mapInstanceRef.current = map;
         setMapInstance(map);
-
+        setMapReady(true); // <-- IMPORTANT
         return () => {
             map.remove();
             mapInstanceRef.current = null;
