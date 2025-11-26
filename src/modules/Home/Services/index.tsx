@@ -9,8 +9,12 @@ const HomeServices = (toast: ToastFunction) => {
             if(response) return response
             else return null
         } catch (error: any) {
-            console.error(error);
-            toast(error.message, 'error');
+               const msg =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Something went wrong";
+           
+            toast(msg,'error')
             return null;
         }
     }
@@ -22,8 +26,12 @@ const HomeServices = (toast: ToastFunction) => {
             if(response) return response
             else return null
         } catch (error: any) {
-            console.error(error);
-            toast(error.message, 'error');
+               const msg =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Something went wrong";
+           
+            toast(msg,'error')
             return null;
         }
     }
@@ -34,8 +42,12 @@ const HomeServices = (toast: ToastFunction) => {
             toast("Delivery created successfully!")
             return data
         } catch (error: any) {
-            console.error(error);
-            toast(error.message,'error');
+               const msg =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Something went wrong";
+           
+            toast(msg,'error')
             return null;
         }
     }
@@ -45,8 +57,12 @@ const HomeServices = (toast: ToastFunction) => {
             const {data} = await http.get(`/DriverUser/getride/${trackingId}`)
             return data
         } catch (error: any) {
-            console.error(error);
-            toast(error.message,'error');
+               const msg =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Something went wrong";
+           
+            toast(msg,'error')
             return null;
         }
     }
@@ -59,8 +75,12 @@ const HomeServices = (toast: ToastFunction) => {
             const { data } = await http.get(`/api/nominatim/reverse?lat=${lat}&lon=${lng}`);
             return data
         } catch (error: any) {
-            console.error(error);
-            toast(error.message,'error');
+              const msg =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Something went wrong";
+           
+            toast(msg,'error')
             return null;
         }
     }
@@ -73,8 +93,12 @@ const HomeServices = (toast: ToastFunction) => {
             const { data } = await http.get(`/AdminUser/rides/${adminId}`)
             return data
         } catch (error: any) {
-            console.error(error);
-            toast(error.message,'error');
+               const msg =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Something went wrong";
+           
+            toast(msg,'error')
             return null;
         }
     }
@@ -84,8 +108,12 @@ const HomeServices = (toast: ToastFunction) => {
             const { data } = await http.get(`/DriverUser/ride/${driverId}`)
             return data
         } catch (error: any) {
-            console.error(error);
-            toast(error.message,'error');
+              const msg =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Something went wrong";
+           
+            toast(msg,'error')
             return null;
         }
     }
@@ -95,8 +123,12 @@ const HomeServices = (toast: ToastFunction) => {
             const { data } = await http.get('/DriverUser/availableDrivers')
             return data
         } catch (error: any) {
-            console.error(error);
-            toast(error.message,'error');
+              const msg =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Something went wrong";
+           
+            toast(msg,'error')
             return null;
         }
     }
@@ -107,8 +139,12 @@ const HomeServices = (toast: ToastFunction) => {
             toast("Delivery ended successfully!")
             return data
         } catch (error: any) {
-            console.error(error);
-            toast(error.message,'error');
+              const msg =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Something went wrong";
+           
+            toast(msg,'error')
             return null;
         }
     }
