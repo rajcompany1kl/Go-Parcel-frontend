@@ -210,7 +210,7 @@ await axios.post(`${serverUrl}/api/send-email`, {
   }
 
   return (
-    <div className="w-96 bg-white shadow-2xl p-6 font-sans flex flex-col h-full sm:auto">
+    <div className="w-96 bg-white shadow-2xl p-6 font-sans flex flex-col h-full sm:h-auto">
       <h1 className="text-2xl font-bold text-gray-800 mb-6">Route Planner</h1>
 
       <div className="space-y-5 flex-grow relative">
