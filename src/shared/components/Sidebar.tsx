@@ -13,7 +13,7 @@ import { formatRouteData, getEstimatedDeliveryDate } from "../Utils";
 import { LocationPinIcon, SpinnerIcon } from "./ui/Icons";
 
 const Sidebar: React.FC<{ 
-  isSidebarOpen: boolean, 
+  isSidebarOpen: boolean,
   setIsSidebarOpen: Dispatch<SetStateAction<boolean>> 
 }> = ({ isSidebarOpen, setIsSidebarOpen }) => {
   type FieldType = "origin" | "destination" | "drivers";
@@ -57,9 +57,12 @@ const Sidebar: React.FC<{
   };
 
   async function createDelivery() {
-    if(!selectedDriver && !originInput && !destinationInput) {
-      addToast('Origin, Destination and Driver Selection is necessary to create a delivery!','error',2000)
+    if(!selectedDriver || !originInput || !destinationInput || !recieverName || !recieverPhone || !itemDescription) {
+      addToast('Please fill all the details to create a delivery!','error',2000)
+      return
     }
+    console.log('driver',selectedDriver)
+    console.log('origin',originInput)
     setLoading(true)
     if(selectedDriver) {
       const driver = AuthFactory.createDriverUserAccount(selectedDriver)
@@ -114,6 +117,9 @@ await axios.post(`${serverUrl}/api/send-email`, {
     setRecieverName('')
     setRecieverPhone('')
     setItemDescription('')
+    setActiveField(null)
+    setDestinationInput("")
+    setOriginInput("")
   }
 
   async function endDelivery() {
@@ -132,6 +138,7 @@ await axios.post(`${serverUrl}/api/send-email`, {
           console.error(err)
           addToast('An error occurred while ending the delivery','error')
         })
+       resetDeliveryCreation();
     }
   }
 
@@ -162,7 +169,7 @@ await axios.post(`${serverUrl}/api/send-email`, {
               <span className="ml-2">Searching...</span>
             </div>
           )}
-          {activeField && suggestions.length > 0 && !isLoading && (
+          {((activeField !== 'drivers' && suggestions.length > 0) || (activeField == 'drivers' && availableDrivers.length > 0)) && !isLoading && (
             <ul className="absolute  w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 z-900 max-h-60 overflow-y-auto">
               {activeField !== 'drivers' ? suggestions.map((place, i) => (
                 <li 
@@ -184,6 +191,17 @@ await axios.post(`${serverUrl}/api/send-email`, {
                   {driver.firstName} {driver.lastName}
                 </li>
               ))}
+            </ul>
+          )}
+          {activeField == 'drivers' && availableDrivers.length == 0 && !isLoading && (
+            <ul className="absolute  w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 z-900 max-h-60 overflow-y-auto">
+              {activeField == 'drivers' && 
+                <li 
+                  className="px-4 py-2.5 cursor-pointer hover:bg-blue-50 text-gray-700 transition-colors"
+                >
+                  No drivers available
+                </li>
+              }
             </ul>
           )}
         </div>
@@ -247,7 +265,7 @@ await axios.post(`${serverUrl}/api/send-email`, {
          {delivery?<>
             </>:<>
           <div className="flex justify-start items-center space-x-4">
-          {selectedDriver ? <p className="text-xl text-gray-600 tracking-wide font-bold">Selected Driver</p> : <button className="w-fit text-white font-medium py-1.5 px-2 rounded-lg bg-neutral-800" onClick={() => setActiveField('drivers')}>Select Driver</button>}
+          {selectedDriver ? <p className="text-xl text-gray-600 tracking-wide font-bold">Selected Driver</p> : <button className="w-fit hover:cursor-pointer text-white font-medium py-1.5 px-2 rounded-lg bg-neutral-800" onClick={() => setActiveField('drivers')}>Select Driver</button>}
           {!selectedDriver && destinationFixed && originFixed && (activeField == 'drivers') &&  searchDroptown()}
           {selectedDriver && <p className="text-xl text-gray-600 tracking-wide font-light">{selectedDriver.firstName} {selectedDriver.lastName}</p>}
         </div>
@@ -278,14 +296,14 @@ await axios.post(`${serverUrl}/api/send-email`, {
       </div>}
 
       {delivery ? <div className="mt-6 flex gap-5">
-        <button onClick={endDelivery} className="w-full text-white font-bold py-3 px-4 rounded-lg bg-neutral-800 transition-all duration-300 transform hover:ring-2 ring-neutral-800 ring-offset-2">
+        <button onClick={endDelivery} className="hover:cursor-pointer w-full text-white font-bold py-3 px-4 rounded-lg bg-neutral-800 transition-all duration-300 transform hover:ring-2 ring-neutral-800 ring-offset-2">
           End delivery
         </button>
-        <button onClick={resetDeliveryCreation} className="w-full text-white font-bold py-3 px-4 rounded-lg bg-neutral-800 transition-all duration-300 transform hover:ring-2 ring-neutral-800 ring-offset-2">
+        <button onClick={resetDeliveryCreation} className="hover:cursor-pointer w-full text-white font-bold py-3 px-4 rounded-lg bg-neutral-800 transition-all duration-300 transform hover:ring-2 ring-neutral-800 ring-offset-2">
           Create More
         </button>
       </div> : <div className="mt-4">
-        <button onClick={createDelivery} className="w-full text-white font-bold py-3 px-4 rounded-lg bg-neutral-800 transition-all duration-300 transform hover:ring-2 ring-neutral-800 ring-offset-2">
+        <button onClick={createDelivery} className="hover:cursor-pointer w-full text-white font-bold py-3 px-4 rounded-lg bg-neutral-800 transition-all duration-300 transform hover:ring-2 ring-neutral-800 ring-offset-2">
           {!loading ? 'Create Delivery' : 'Creating delivery...'}
         </button>
       </div>}

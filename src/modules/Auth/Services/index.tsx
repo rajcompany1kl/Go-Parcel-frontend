@@ -9,8 +9,12 @@ const AuthService = (toast: ToastFunction) => {
             toast('Login Successfull!','success')
             return response
         } catch (error: any) {
-            console.error(error)
-            toast('Please enter correct email or password','error')
+             const msg =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Something went wrong";
+           
+            toast(msg,'error')
         }
     }
 
@@ -21,8 +25,11 @@ const AuthService = (toast: ToastFunction) => {
             toast('Signup Successfull!','success')
             return response
         } catch (error: any) {
-            console.error(error)
-            toast(error.message,'error')
+              const msg =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Something went wrong";
+            toast(msg,'error')
         }
     }
 
@@ -33,8 +40,11 @@ const AuthService = (toast: ToastFunction) => {
             toast('Login Successfull!','success')
             return response
         } catch (error: any) {
-            console.error(error)
-            toast(error.message,'error')
+          const msg =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Something went wrong";
+            toast(msg,'error')
         }
     }
 
@@ -45,8 +55,11 @@ const AuthService = (toast: ToastFunction) => {
             toast('Signup Successfull!','success')
             return response
         } catch (error: any) {
-            console.error(error)
-            toast(error.message,'error')
+           const msg =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Something went wrong";
+            toast(msg,'error')
         }
     }
     return {

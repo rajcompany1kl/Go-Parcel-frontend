@@ -14,6 +14,7 @@ const HomeTemplate = () => {
 
   async function fetchAdminDeliveries() {
     if(user) {
+       console.log("homepage mai fetchadmindelivery se")
       const response = await services.home.getAllDeliveries(user.id)
       if(response.rides) {
         setAdminDeliveries(response.rides)}
@@ -21,7 +22,9 @@ const HomeTemplate = () => {
   }
 
   useEffect(()=>{
+     console.log("homepage mai fetchadmindelivery se")
     if(role == 'admin') fetchAdminDeliveries()
+     
   },[])
 
   return (

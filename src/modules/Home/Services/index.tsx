@@ -69,6 +69,7 @@ const HomeServices = (toast: ToastFunction) => {
         adminId: string
     ) {
         try {
+            console.log("champak chacha")
             const { data } = await http.get(`/AdminUser/rides/${adminId}`)
             return data
         } catch (error: any) {

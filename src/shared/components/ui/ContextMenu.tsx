@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import '../../../App.css'
 
 export enum ContextMenuItemType {
@@ -28,8 +28,13 @@ interface ContextMenuProps {
 const ContextMenu: React.FC<ContextMenuProps> = ({ items, children }) => {
     const [isOpen, setIsOpen] = useState(false);
     const timeoutRef = useRef<number | null>(null);
+    const menuRef = useRef<HTMLDivElement | null>(null);
+
+    const isTouchDevice =
+        typeof window !== "undefined" && "ontouchstart" in window;
 
     const handleMouseEnter = () => {
+        if (isTouchDevice) return;
         if (timeoutRef.current) {
             clearTimeout(timeoutRef.current);
             timeoutRef.current = null;
@@ -38,10 +43,37 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ items, children }) => {
     };
 
     const handleMouseLeave = () => {
+        if (isTouchDevice) return;
         timeoutRef.current = window.setTimeout(() => {
             setIsOpen(false);
         }, 300);
     };
+
+    // Toggle on mobile tap
+    const handleClick = () => {
+        if (isTouchDevice) {
+            setIsOpen((prev) => !prev);
+        }
+    };
+
+    // Close on outside tap / click
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const handleClickOutside = (e: MouseEvent | TouchEvent) => {
+            if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+                setIsOpen(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        document.addEventListener("touchstart", handleClickOutside);
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener("touchstart", handleClickOutside);
+        };
+    }, [isOpen]);
 
     const getInitials = (firstName: string, lastName: string) => {
         return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
@@ -59,7 +91,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ items, children }) => {
                             <p className="font-semibold text-gray-800">{item.label}</p>
                         </div>
                     </div>
-                )
+                );
             case ContextMenuItemType.SEPARATOR:
                 return <div key={`${index}-${item.key}`} className="h-px bg-gray-200 my-1" />;
 
@@ -75,7 +107,6 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ items, children }) => {
                 );
 
             case ContextMenuItemType.SUBMENU:
-                // TODO: Implement Submenu here
                 return (
                     <div key={`${index}-${item.key}`} className="px-4 py-2 text-sm text-gray-700">
                         {item.label}
@@ -93,11 +124,14 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ items, children }) => {
 
     return (
         <div
+            ref={menuRef}
             className="relative inline-block"
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
+            onClick={handleClick}
         >
             {children}
+
             {isOpen && (
                 <div
                     className="absolute right-0 mt-2 w-64 origin-top-right bg-white rounded-xl shadow-2xl z-50 p-2 max-h-[40vh] h-fit overflow-y-scroll hide-scrollbar"
@@ -107,7 +141,9 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ items, children }) => {
                         backgroundColor: 'rgba(255, 255, 255, 0.8)'
                     }}
                 >
-                    {items.length > 0 ? items.map(renderMenuItem) : <div className='text-center text-gray-500'>No active deliveries</div>}
+                    {items.length > 0
+                        ? items.map(renderMenuItem)
+                        : <div className='text-center text-gray-500'>No active deliveries</div>}
                 </div>
             )}
         </div>
@@ -115,4 +151,3 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ items, children }) => {
 };
 
 export default ContextMenu;
-

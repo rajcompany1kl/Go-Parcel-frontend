@@ -39,12 +39,14 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, isSidebarOpen }) => {
   }
 
   useEffect(()=>{
-    if (role === 'admin') createAdminDeliveriesMenu();
+    console.log("header useffect se")
+    if (role === 'admin') createAdminDeliveriesMenu(); 
     console.log("deliveries resetting",delivery)
   },[delivery])
 
   async function createAdminDeliveriesMenu() {
     if (user) {
+      console.log("deliveries resetting",delivery)
       const response = await services.home.getAllDeliveries(user.id)
       const activeDeliveries = (response.rides as any[]).filter(ride => (ride as Ride).isRideEnded === false)
       console.log("Active deliveries for admin:", activeDeliveries);
@@ -64,7 +66,11 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, isSidebarOpen }) => {
       const userProfileContextMenuItem = createProfileContextMenuItem(user)
       profileMenuItems.unshift(userProfileContextMenuItem)
     }
-    if (role === 'admin') createAdminDeliveriesMenu()
+    if(user?.id){
+    if (role === 'admin'){ 
+      console.log("ab aaya pakad mai")
+      createAdminDeliveriesMenu()}
+    }
     setProfileContext(profileMenuItems)
   }, [user]);
 
@@ -83,7 +89,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, isSidebarOpen }) => {
   return (
     <div className='w-full h-[10vh] bg-black flex justify-around items-center pl-10 pr-5'>
       <div className="flex-1">
-        <span className="text-white text-2xl font-medium">Commute</span>
+        <span onClick={() => navigate('/')} className="text-white text-2xl font-medium hover:cursor-pointer">GoParcel</span>
       </div>
       <div className="w-fit h-full flex justify-end items-center gap-x-2 ">
       {(role=='admin') && 
