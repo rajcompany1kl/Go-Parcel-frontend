@@ -45,7 +45,7 @@ const Map: React.FC<Props> = ({ socket }) => {
         console.log("aya to")
         if (role !== 'driver' || !socket || !user) return;
         console.log("aya to 2")
-        if (!mapInstanceRef.current) return;
+        if (!mapInstanceRef.current || mapReady) return;
         console.log("aya to 3")
 
         const map = mapInstanceRef.current;
@@ -64,6 +64,7 @@ const Map: React.FC<Props> = ({ socket }) => {
                 } else {
                     marker.setLatLng([latitude, longitude]);
                 }
+                console.log("setting the view")
                 map.setView([latitude, longitude], map.getZoom());
 
                 socket.emit('driver:location', {
@@ -85,6 +86,7 @@ const Map: React.FC<Props> = ({ socket }) => {
 
     // Initialize map
     useEffect(() => {
+        console.log("initialised")
         if (!mapContainerRef.current || mapInstanceRef.current) return;
 
         const map = L.map(mapContainerRef.current, { center: [24.5854, 73.7125], zoom: 13 });
