@@ -139,7 +139,10 @@ const DriverSidebar: React.FC = () => {
 
     async function getAssignedDelivery() {
         if (user) {
+            console.log("delivery")
             const response = await services.home.getDriverDelivery(user.id);
+            console.log("response:",response)
+            if(!response.ride.leg.start_location || (response==null)) return;
             setDelivery(HomeFactory.createRideFromMongoDBResponse(response.ride));
             setOriginCoords([response.ride.leg.start_location.lat, response.ride.leg.start_location.lng]);
             setDestinationCoords([response.ride.leg.end_location.lat, response.ride.leg.end_location.lng]);
@@ -147,10 +150,14 @@ const DriverSidebar: React.FC = () => {
     }
 
     useEffect(() => {
+        console.log("calling")
         if(user?.id){
+            console.log("calling")
         getAssignedDelivery();
         }
-    }, [user]);
+    }, []);
+    console.log('del',delivery)
+    if (!delivery || !delivery.leg) return <NoDelivery />;
 
     return delivery ? <AssignedDelivery delivery={delivery} /> : <NoDelivery />;
 };
